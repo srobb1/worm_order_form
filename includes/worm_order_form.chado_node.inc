@@ -246,7 +246,7 @@ function chado_worm_order_form_form($node, &$form_state) {
   );
 
 $form['contact_lab_head'] = array(
-    '#type' => 'text_format',
+    '#type' => 'textfield',
     '#title' => t('Lab Head'),
     '#required' => TRUE,
     '#default_value' => $contact_lab_head ,
@@ -342,7 +342,6 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
   $details = array(
   );
   // Adds the form elements to your current form
-  worm_order_form_add_node_form_properties($form, $form_state, $details);
 
   // ADDITIONAL DBXREFS FORM
   //---------------------------------------------
