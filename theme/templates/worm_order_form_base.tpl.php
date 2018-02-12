@@ -12,7 +12,7 @@ print "<h3>This is a summary of the term submission.</h3>
 
   global $user;
   $admin_rid = user_role_load_by_name('administrator')->rid; 
-  $onto_curator_rid = user_role_load_by_name('ontology_curator')->rid; 
+  $worm_order_form_admin_rid = user_role_load_by_name('worm_order_form_admin')->rid; 
 
 // the $headers array is an array of fields to use as the column headers.
 // additional documentation can be found here
@@ -28,18 +28,18 @@ $rows = array();
 // Type row
 $rows[] = array(
   array(
-    'data' => 'Library',
+    'data' => 'Worm Quantity',
     'header' => TRUE
   ),
-  $onto_term_submit->type_id->name
+  $onto_term_submit->worm_quantity
 );
 // Unique Name row
 $rows[] = array(
   array(
-    'data' => 'Term Name',
+    'data' => 'Biotype',
     'header' => TRUE
   ),
-  $onto_term_submit->term_name
+  $onto_term_submit->worm_biotype
 );
 
 // definition row
@@ -55,36 +55,44 @@ $rows[] = array(
 // Type row
 $rows[] = array(
   array(
-    'data' => 'Definition Reference',
+    'data' => 'Lab head',
     'header' => TRUE
   ),
-  $onto_term_submit->definition_ref
+  $onto_term_submit->contact_lab_head
 );
 // Type row
 $rows[] = array(
   array(
-    'data' => 'Term Ontology Reference',
+    'data' => 'Contact Position',
     'header' => TRUE
   ),
-  $onto_term_submit->term_xref
-);
-
-// Type row
-$rows[] = array(
-  array(
-    'data' => 'Synonyms',
-    'header' => TRUE
-  ),
-  $onto_term_submit->syns
+  $onto_term_submit->contact_position
 );
 
 // Type row
 $rows[] = array(
   array(
-    'data' => 'More Info URL',
+    'data' => 'Shipping Address',
     'header' => TRUE
   ),
-  '<a href="' . $onto_term_submit->seealso_url . '">'.  $onto_term_submit->seealso_url  . '</a>'
+  $onto_term_submit->sydelivery_addressns
+);
+
+// Type row
+$rows[] = array(
+  array(
+    'data' => 'Shipping Phone',
+    'header' => TRUE
+  ),
+  $onto_term_submit->delivery_phone
+);
+
+$rows[] = array(
+  array(
+    'data' => 'FedEx Account',
+    'header' => TRUE
+  ),
+  $onto_term_submit->fedex_account
 );
 
 // Type row
@@ -99,13 +107,21 @@ $rows[] = array(
 // Type row
 $rows[] = array(
   array(
-    'data' => 'Contact/Author',
+    'data' => 'Contact Name',
     'header' => TRUE
   ),
   $onto_term_submit->contact_name
 );
 
-if (isset($user->roles[$admin_rid]) or isset($user->roles[$onto_curator_rid])){
+$rows[] = array(
+  array(
+    'data' => 'Receiver Name',
+    'header' => TRUE
+  ),
+  $onto_term_submit->receiver_name
+);
+
+
 // Type row
 $rows[] = array(
   array(
@@ -114,12 +130,12 @@ $rows[] = array(
   ),
   $onto_term_submit->contact_email
 );
-}
+
 
 
 
 // Type row
-$statuses = array ('Term Requested','Term in Review', 'Term Added to Ontology', 'Contact Author for Additional Information', 'Term Submission Incomplete', 'Term Submission Issues');
+$statuses = array ('Worms Requested','Order being processed', 'Order Shipped');
 $status = $statuses[$onto_term_submit->sstatus];
 $rows[] = array(
   array(
@@ -130,7 +146,7 @@ $rows[] = array(
 //  $onto_term_submit->status
 );
 // Type row
-if (isset($user->roles[$admin_rid]) or isset($user->roles[$onto_curator_rid])){
+if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin_rid])){
 $rows[] = array(
   array(
     'data' => 'Status Notes',
@@ -144,12 +160,12 @@ if (user_access('view ids')) {
   // Feature ID
   $rows[] = array(
     array(
-      'data' => 'Onto Term Submit ID',
+      'data' => 'Order ID',
       'header' => TRUE,
       'class' => 'tripal-site-admin-only-table-row',
     ),
     array(
-      'data' => $onto_term_submit->onto_term_submit_id,
+      'data' => $onto_term_submit->worm_order_form_id,
       'class' => 'tripal-site-admin-only-table-row',
     ),
   );
@@ -162,7 +178,7 @@ $table = array(
   'header' => $headers,
   'rows' => $rows,
   'attributes' => array(
-    'id' => 'tripal_onto_term_submit-table-base',
+    'id' => 'tripal_worm_order_form-table-base',
     'class' => 'tripal-data-table'
   ),
   'sticky' => FALSE,
