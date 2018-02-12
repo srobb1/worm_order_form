@@ -176,7 +176,7 @@ function worm_order_form_schema() {
       ),
     ),
     'indexes' => array(
-      'chado_worm_order_form_idx1' => array('onto_term_submit_id')
+      'chado_worm_order_form_idx1' => array('worm_order_form_id')
     ),
     'unique keys' => array(
       'chado_worm_order_form_uq1' => array('nid', 'vid'),
