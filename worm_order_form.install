@@ -97,12 +97,12 @@ function worm_order_form_install() {
   // add any custom tables. For this case we will add an 'worm_order_form' table to the
   // chado schema
   worm_order_form_add_custom_tables();
-  worm_order_form_create_curator_role();
+  worm_order_form_create_custom_role();
 }
 
-function worm_order_form_create_curator_role(){
+function worm_order_form_create_custom_role(){
 
- $roles = array('ontology_curator');
+ $roles = array('worm_order_form_admin');
 
  foreach($roles as $name) {
    $existing_role = user_role_load_by_name($name);
@@ -125,9 +125,9 @@ function worm_order_form_create_curator_role(){
  */
 function worm_order_form_uninstall() {
    
-    db_drop_table('chado.worm_order_formprop');
+
     db_drop_table('chado.worm_order_form');
-     user_role_delete('ontology_curator');
+     user_role_delete('worm_order_form_admin');
 
 }
 
@@ -276,7 +276,7 @@ function worm_order_form_add_custom_tables() {
   // function called here:
 
   worm_order_form_add_worm_order_form_table();
-  worm_order_form_add_worm_order_formprop_table();
+
 //  worm_order_form_add_worm_order_form_relationship_table();
 //  worm_order_form_add_worm_order_form_dbxref_table();
 }
@@ -292,7 +292,7 @@ function worm_order_form_add_worm_order_form_table() {
 
   $schema = array(
     'table' => 'worm_order_form',
-    'name' => 'Chado Onto Term Submit',
+    'name' => 'Chado Worm Form Order',
     'base_table' => '1',
     'fields' => array(
       'worm_order_form_id' => array(
@@ -304,40 +304,55 @@ function worm_order_form_add_worm_order_form_table() {
         'length' => '255',
         'not null' => TRUE,
       ),
-      'definition' => array(
+      'worm_biotype' => array(
         'type' => 'text',
         'not null' => TRUE,
       ),
-      'syns' => array(
+      'contact_lab_head' => array(
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
       ),
-      'definition_ref' => array(
+      'fedex_account' => array(
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
       ),
-      'term_xref' => array(
+      'contact_position' => array(
         'type' => 'varchar',
         'length' => '255',
+        'not null' => TRUE,
       ),
-      'type_id' => array(
+      'delivery_address' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'worm_quantity' => array(
         'type' => 'int',
         'not null' => true,
       ),
-      'seealso_url' => array(
+      'delivery_phone' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'receiver_name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'contact_name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'contact_email' => array(
         'type' => 'varchar',
         'length' => '255',
       ),
-      'contact_name' => array(
-        'type' => 'text',
-      ),
-      'contact_email' => array(
-        'type' => 'text',
-      ),
       'comments' => array(
-        'type' => 'text',
+        'type' => 'varchar',
+        'length' => '255',
       ),
       'sstatus' => array(
         'type' => 'int',
@@ -359,18 +374,10 @@ function worm_order_form_add_worm_order_form_table() {
       'worm_order_form_idx1' => array(
         0 => 'worm_order_form_id',
       ),
-      'worm_order_form_idx2' => array(
-        0 => 'term_name',
-        1 => 'contact_name',
-      ),
+
     ),
     'foreign keys' => array(
-      'cv' => array(
-        'table' => 'cv',
-        'columns' => array(
-          'type_id' => 'cv_id',
-        ),
-      ),
+
     ),
     // EXPLANATION: the 'referring_tables' array is the list of tables that have
     // a foreign key relationships with this table. This information is required
@@ -381,73 +388,7 @@ function worm_order_form_add_worm_order_form_table() {
   );
   chado_create_custom_table('worm_order_form', $schema, TRUE);
 }
-/**
- * Adds the 'worm_order_form_relationship' custom table to Chado.
- *
- * @ingroup worm_order_form
- */
-function worm_order_form_add_worm_order_formprop_table() {
-  // EXPLANATION: use the Drupal Schema API to describe the custom table. Then
-  // add the table using the chado_create_custom_table() function.
 
-// Add the worm_order_formprop table
-  $schema =  array(
-    'table' => 'worm_order_formprop',
-    'fields' => array(
-      'worm_order_formprop_id' => array(
-        'type' => 'serial',
-        'not null' => TRUE,
-      ),
-      'worm_order_form_id' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-      ),
-      // value is the parent type_id
-      'value' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-      ),
-      //type_id is the relationship type_id
-      'type_id' => array(
-        'type' => 'int',
-        'not null' => FALSE,
-      ),
-      'rank' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-      ),
-    ),
-    'primary key' => array(
-      0 => 'worm_order_formprop_id',
-    ),
-    'unique keys' => array(
-      'worm_order_form_id_type_id_rank' => array(
-        0 => 'worm_order_form_id',
-        1 => 'type_id',
-        2 => 'value',
-        3 => 'rank',
-      ),
-    ),
-    'foreign keys' => array(
-      'cvterm' => array(
-        'table' => 'cvterm',
-        'columns' => array(
-          'type_id' => 'cvterm_id',
-          'value' => 'cvterm_id',
-        ),
-      ),
-      'worm_order_form' => array(
-        'table' => 'worm_order_form',
-        'columns' => array(
-          'worm_order_form_id' => 'onto_term_submit_id',
-        ),
-      ),
-    ),
-  );
-  chado_create_custom_table('worm_order_formprop', $schema, TRUE);
-
-
-}
 
 /**
  * Adds the 'worm_order_form_relationship' custom table to Chado.
