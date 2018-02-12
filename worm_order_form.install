@@ -299,11 +299,6 @@ function worm_order_form_add_worm_order_form_table() {
         'type' => 'serial',
         'not null' => true,
       ),
-      'term_name' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ),
       'worm_biotype' => array(
         'type' => 'text',
         'not null' => TRUE,
@@ -353,6 +348,10 @@ function worm_order_form_add_worm_order_form_table() {
       'comments' => array(
         'type' => 'varchar',
         'length' => '255',
+      ),
+      'agreement' => array(
+        'type' => 'int',
+        'not null' => TRUE,
       ),
       'sstatus' => array(
         'type' => 'int',
