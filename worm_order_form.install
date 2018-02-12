@@ -1,0 +1,531 @@
+<?php
+/**
+ * @file
+ * Installation of the worm_order_form module
+ */
+
+/**
+ * Implements hook_disable().
+ *
+ * Perform actions when the module is disabled by the site administrator
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_disable() {
+  // EXPLANATION: If you are using Drupal Views you want to ensure that any
+  // default views that your module provides are disabled when the module is
+  // disabled. Default views are specified in the
+  // [module name].views.default.inc file. The following code will disable these
+  // views. If your module does not create any default views you can remove the
+  // following code.
+
+  // Disable all default views provided by this module
+/*
+  require_once("worm_order_form.views_default.inc");
+  $views = worm_order_form_views_default_views();
+  foreach (array_keys($views) as $view_name) {
+    tripal_disable_view($view_name,FALSE,array('suppress_error' => TRUE));
+  }
+*/
+}
+
+/**
+ * Implements hook_requirements().
+ *
+ * Performs check to see if all required dependencies are met. Drupal will
+ * automatically check for module dependencies but here you can check for other
+ * requirements.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_requirements($phase) {
+
+
+  $requirements = array();
+  if ($phase == 'install') {
+    // EXPLANATION: It is essential that Chado be installed for almost all
+    // Tripal modules. Therefore, the following code checks to ensure Chado is
+    // installed and available. If your module does not require that Chado be
+    // installed, you can remove the following check.
+
+    // make sure chado is installed
+    if (!$GLOBALS["chado_is_installed"]) {
+      $requirements ['worm_order_form'] = array(
+          'title' => "worm_order_form",
+          'value' => "ERROR: Chado must be installed before this module can be enabled",
+          'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ *
+ * Performs actions when the modules is first installed.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_install() {
+
+  // EXPLANATION: Here is a good place to add any materialized views, controlled
+  // vocabularies CV, databases or CV terms needed by your module.
+  // To keep this module code short, create functions to do each of those tasks
+
+  // add any materialized view
+//  worm_order_form_add_mviews();
+
+
+  // add any controlled vocabularies used by the worm_order_form module. You may need
+  // to add a vocabulary if you to set it as default (see next lines of code).
+  // For worm_order_form, the Sequence Ontology (SO) is used by the feature module as
+  // the default vocabulary for the feature type_id field. But, that vocabulary
+  // does not yet exist in Chado until after the SO is loaded using the Tripal
+  // OBO loader. But, we can add it here as a place-holder so that we can then
+  // set it as a default vocabulary (see below).
+
+
+  // EXPLANATION: Many tables in Chado have a 'type_id' column which allows for
+  // association of controlled vocabularies to describe the record. Chado places
+  // no restrictions on which vocabularies can be used, but Tripal can be
+  // instructed to provide a default vocabulary for any given field. For
+  // worm_order_form, the feature.type_id column will typically use the Sequence
+  // Ontology. In that case, we can use the tripal_set_default_cv() function to
+  // specify the Sequence Ontology (sequence) as the default vocabulary.
+
+  // add any custom tables. For this case we will add an 'worm_order_form' table to the
+  // chado schema
+  worm_order_form_add_custom_tables();
+  worm_order_form_create_curator_role();
+}
+
+function worm_order_form_create_curator_role(){
+
+ $roles = array('ontology_curator');
+
+ foreach($roles as $name) {
+   $existing_role = user_role_load_by_name($name);
+   if (empty($existing_role)){
+      $role = new stdClass();
+       $role->name = $name;
+       user_role_save($role);
+    }
+  }
+}
+
+
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Performs actions when the modules is uninstalled.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_uninstall() {
+   
+    db_drop_table('chado.worm_order_formprop');
+    db_drop_table('chado.worm_order_form');
+     user_role_delete('ontology_curator');
+
+}
+
+/**
+ * Implementation of hook_schema().
+ *
+ * Provides a list of tables to be created inside of the Drupal schema (the
+ * 'public' schema by default). It uses the Drupal Schema API array structure to
+ * define the table, its indexes and constraints.
+ *
+ * Schema API documentation is here:
+ * https://api.drupal.org/api/drupal/includes%21database%21schema.inc/group/schemaapi/7
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_schema() {
+  // EXPLANATION: If your module creates a node type for data in the Chado
+  // database then you probably need to link Drupal nodes with a respective ID
+  // in the Chado table. The following is an worm_order_form array for a table that will
+  // link the 'chado_worm_order_form' node type (created by this onto_term_submit module) with a
+  // record in the fake Chado worm_order_form table. This table will link the 'nid' of
+  // the node with the 'worm_order_form_id' of the onto_term_submit record.
+  $schema['chado_worm_order_form'] = array(
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+       ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+       ),
+      'worm_order_form_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'sync_date' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+        'description' => 'UNIX integer sync date/time'
+      ),
+    ),
+    'indexes' => array(
+      'chado_worm_order_form_idx1' => array('onto_term_submit_id')
+    ),
+    'unique keys' => array(
+      'chado_worm_order_form_uq1' => array('nid', 'vid'),
+      'chado_worm_order_form_uq2' => array('vid')
+    ),
+    'primary key' => array('nid'),
+  );
+
+  return $schema;
+};
+
+/**
+ * Creates a materialized view that stores the type & number of worm_order_forms per
+ * organism.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_mviews() {
+
+  // EXPLANATION: use the tripal_add_mview() function to add a materialized view
+  // needed by your module. If you have more than one materialized view it is
+  // best to create a single function for each one and call each function here.
+  // Otherwise this function can become quite long.
+
+}
+/**
+ * Add cvs related to publications
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_dbs() {
+  // EXPLANATION: use the tripal_insert_db() function to add any external
+  // databases needed by your module. If the database already exists then the
+  // function will gracefully return.
+/*
+  tripal_insert_db(array(
+    'name' => 'worm_order_form_db',
+    'description' => 'An worm_order_form database.'
+  ));
+
+*/
+}
+/**
+ * Add cvs related to publications
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_cvs() {
+
+  // EXPLANATION: use the tripal_insert_cv() function to add any controlled
+  // vocabularies needed by your module. If the vocabulary already exists then
+  // the function will gracefully return. Chado conventions use a singular name
+  // for CV names (not plural).
+/*
+*/
+}
+
+/**
+ * Adds controlled vocabulary terms needed by this module.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_cvterms() {
+
+  // EXPLANATION: for our test module to work we need to add some terms to our
+  // worm_order_form_type controlled vocabulary. Ideally we should have a full OBO file
+  // for loading but sometimes we just have a small list that won't really
+  // change so we can add those terms here.
+
+/*
+  tripal_insert_cvterm(array(
+    'id'         => 'test',         // the term accession
+    'name'       => 'Test type',    // the human readable term name
+    'cv_name'    => 'worm_order_form_type', // the CV name this term belongs to.
+    'definition' => 'A test type for the worm_order_form module.',
+    'db_name'    => 'worm_order_form_db',   // the database in which the term is found.
+  ));
+
+*/
+}
+
+/**
+ * Add custom tables to Chado that are required by this module
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_custom_tables() {
+  // EXPLANATION: for this worm_order_form module we will create a set of onto_term_submit tables
+  // that mimic Chado tables. These tables are:
+  //
+  //   1) worm_order_form     (for storing the primary onto_term_submit records)
+  //   2) worm_order_formprop (for sorting properties about the onto_term_submit)
+  //   3) worm_order_form_relationship (for storing relationships about onto_term_submits)
+  //   4) worm_order_form_dbxref (for storing cross-references about an onto_term_submit)
+  //
+  // To make the code easier to read, each table is created by a separate
+  // function called here:
+
+  worm_order_form_add_worm_order_form_table();
+  worm_order_form_add_worm_order_formprop_table();
+//  worm_order_form_add_worm_order_form_relationship_table();
+//  worm_order_form_add_worm_order_form_dbxref_table();
+}
+
+/**
+ * Adds the 'worm_order_form' custom table to Chado.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_worm_order_form_table() {
+  // EXPLANATION: use the Drupal Schema API to describe the custom table. Then
+  // add the table using the chado_create_custom_table() function.
+
+  $schema = array(
+    'table' => 'worm_order_form',
+    'name' => 'Chado Onto Term Submit',
+    'base_table' => '1',
+    'fields' => array(
+      'worm_order_form_id' => array(
+        'type' => 'serial',
+        'not null' => true,
+      ),
+      'term_name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'definition' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'syns' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'definition_ref' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'term_xref' => array(
+        'type' => 'varchar',
+        'length' => '255',
+      ),
+      'type_id' => array(
+        'type' => 'int',
+        'not null' => true,
+      ),
+      'seealso_url' => array(
+        'type' => 'varchar',
+        'length' => '255',
+      ),
+      'contact_name' => array(
+        'type' => 'text',
+      ),
+      'contact_email' => array(
+        'type' => 'text',
+      ),
+      'comments' => array(
+        'type' => 'text',
+      ),
+      'sstatus' => array(
+        'type' => 'int',
+      ),
+      'status_notes' => array(
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array(
+      0 => 'worm_order_form_id',
+    ),
+    'unique keys' => array(
+      'worm_order_form_uq1' => array(
+        0 => 'term_name',
+        1 => 'contact_name',
+      ),
+    ),
+    'indexes' => array(
+      'worm_order_form_idx1' => array(
+        0 => 'worm_order_form_id',
+      ),
+      'worm_order_form_idx2' => array(
+        0 => 'term_name',
+        1 => 'contact_name',
+      ),
+    ),
+    'foreign keys' => array(
+      'cv' => array(
+        'table' => 'cv',
+        'columns' => array(
+          'type_id' => 'cv_id',
+        ),
+      ),
+    ),
+    // EXPLANATION: the 'referring_tables' array is the list of tables that have
+    // a foreign key relationships with this table. This information is required
+    // for the Tripal API to be able to expand tables in templates.
+    'referring_tables' => array(
+        0 => 'worm_order_formprop',
+    ),
+  );
+  chado_create_custom_table('worm_order_form', $schema, TRUE);
+}
+/**
+ * Adds the 'worm_order_form_relationship' custom table to Chado.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_worm_order_formprop_table() {
+  // EXPLANATION: use the Drupal Schema API to describe the custom table. Then
+  // add the table using the chado_create_custom_table() function.
+
+// Add the worm_order_formprop table
+  $schema =  array(
+    'table' => 'worm_order_formprop',
+    'fields' => array(
+      'worm_order_formprop_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'worm_order_form_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      // value is the parent type_id
+      'value' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      //type_id is the relationship type_id
+      'type_id' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'rank' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      0 => 'worm_order_formprop_id',
+    ),
+    'unique keys' => array(
+      'worm_order_form_id_type_id_rank' => array(
+        0 => 'worm_order_form_id',
+        1 => 'type_id',
+        2 => 'value',
+        3 => 'rank',
+      ),
+    ),
+    'foreign keys' => array(
+      'cvterm' => array(
+        'table' => 'cvterm',
+        'columns' => array(
+          'type_id' => 'cvterm_id',
+          'value' => 'cvterm_id',
+        ),
+      ),
+      'worm_order_form' => array(
+        'table' => 'worm_order_form',
+        'columns' => array(
+          'worm_order_form_id' => 'onto_term_submit_id',
+        ),
+      ),
+    ),
+  );
+  chado_create_custom_table('worm_order_formprop', $schema, TRUE);
+
+
+}
+
+/**
+ * Adds the 'worm_order_form_relationship' custom table to Chado.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_worm_order_form_relationship_table() {
+  // EXPLANATION: use the Drupal Schema API to describe the custom table. Then
+  // add the table using the chado_create_custom_table() function.
+// subject id is worm_order_form_id
+// object id is existing term
+}
+
+/**
+ * Adds the 'worm_order_form_dbxref' custom table to Chado.
+ *
+ * @ingroup worm_order_form
+ */
+function worm_order_form_add_worm_order_form_dbxref_table() {
+
+  // EXPLANATION: use the Drupal Schema API to describe the custom table. Then
+  // add the table using the chado_create_custom_table() function.
+
+/*
+  chado_create_custom_table('worm_order_form_dbxref', $schema, TRUE);
+*/
+}
+/**
+ * This is the required update for worm_order_form.
+ */
+function worm_order_form_update_7200() {
+  // EXPLANATION: as you create new releases of your module you may find that
+  // tables your module created, or data may need to be adjusted. This function
+  // allows you to do that. This function is executed using the
+  // http://[your site]/update.php  URL or using the drush command 'updatedb'.
+  // This function should be named according to the instructions provided here:
+  // https://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_update_N/7
+  //
+  // Make sure we have the full API loaded this will help during a
+  // site upgrade when the tripal_core module is disabled.
+/*
+
+  module_load_include('module', 'tripal_core', 'tripal_core');
+  tripal_core_import_api();
+
+  // it is good to wrap any database changes inside of a try catch block:
+  try {
+   // perform database changes
+  }
+  catch (\PDOException $e) {
+    $error = $e->getMessage();
+    throw new DrupalUpdateException('Could not apply updates: '. $error);
+  }
+
+*/
+}
+
+
+/**
+ * Implementation of hook_update_dependencies().
+ *
+ * It specifies a list of other modules whose updates must be run prior to
+ * this one.  It also ensures the the Tripal API is in scope for site
+ * upgrades when tripal_core is disabled.
+ */
+function worm_order_form_update_dependencies() {
+/*
+  $dependencies = array();
+
+  // EXPLANATION: here we can specify which modules must be updated prior to
+  // applying the updates in this module. This is useful because it prevents
+  // updates from being executed out of order. The following worm_order_form code shows
+  // that the 'worm_order_form' module update number 7200 must be executed after
+  // the 'tripal_cv' module's 7200 update.
+  $dependencies['worm_order_form'][7200] = array(
+    'tripal_cv' => 7200
+  );
+
+  return $dependencies;
+*/
+}
