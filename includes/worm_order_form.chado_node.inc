@@ -128,8 +128,8 @@ function chado_worm_order_form_form($node, &$form_state) {
 
   global $user;
   $form = array();
-  $admin_rid = user_role_load_by_name('administrator')->rid; // admin want to also add ontology_curator
-  $worm_order_form_admin_rid = user_role_load_by_name('worm_order_form_admin')->rid; // admin want to also add ontology_curator
+  $admin_rid = user_role_load_by_name('administrator')->rid; 
+  $worm_order_form_admin_rid = user_role_load_by_name('worm_order_form_admin')->rid; 
 
 
   // Default values can come in the following ways:
@@ -176,7 +176,7 @@ function chado_worm_order_form_form($node, &$form_state) {
     $contact_position = $worm_order_form->contact_position;
     $delivery_address  = $worm_order_form->delivery_address;
     $delivery_phone = $worm_order_form->delivery_phone;
-    $fedex_account = '';
+    $fedex_account = $worm_order_form->fedex_account;
     $receiver_name  = $worm_order_form->receiver_name;
     $contact_name  = $worm_order_form->contact_name;
     $contact_email = $worm_order_form->contact_email;
@@ -236,16 +236,16 @@ function chado_worm_order_form_form($node, &$form_state) {
     '#description' => t('REQUIRED. Enter a the number of worms that you would like to have shipped. Example values are: 500, 1000, 10000'), 
     '#maxlength' => 255
   );
-
   $form['worm_biotype'] = array(
     '#title'       => t('Worm Biotype'),
     '#type'        => t('select'),
     '#description' => t("REQUIRED. Select the biotype."),
     '#required'    => TRUE,
-    '#options' => array( 0 => "Sexual" , 1 => "Asexual"),
+    '#options' => array( 0 => "Asexual" ),
     '#default_value' => $worm_biotype
   );
-  $form['contact_lab_head'] = array(
+
+$form['contact_lab_head'] = array(
     '#type' => 'text_format',
     '#title' => t('Lab Head'),
     '#required' => TRUE,
@@ -764,14 +764,14 @@ function worm_order_form_node_presave($node) {
       if (property_exists($node, 'worm_quantity')) {
         // set the title
         //$library_term = tripal_get_cvterm(array('cvterm_id' => $node->worm_order_form_id));
-        $biotype = 'Sexuals';
+        $biotype = 'Schmidtea mediterranea Asexuals';
         if ($worm_biotype == 1){
-          $biotype = 'Asexuals';
+          $biotype = 'Schmidtea mediterranea Sexuals';
         }
-        $node->title = "Worm Order $node->created $node->worm_quantity $biotyes by $node->contact_name";
+        $node->title = "Worm Order $node->created $node->worm_quantity $biotype by $node->contact_name";
      }
       else if (property_exists($node, 'worm_order_form')) {
-        $node->title = "Worm Order $node->created : $node->worm_order_form->worm_quantity $biotyes by $node->worm_order_form->contact_name";
+        $node->title = "Worm Order $node->created : $node->worm_order_form->worm_quantity $biotype by $node->worm_order_form->contact_name";
       }
       break;
   }
