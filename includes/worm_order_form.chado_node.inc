@@ -409,7 +409,7 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
   }
 
   // be sure to always trim text fields
-  $node->term_name   = property_exists($node, 'term_name') ? trim($node->term_name) : '';
+  $node->contact_name   = property_exists($node, 'contact_name') ? trim($node->contact_name) : '';
 
   // Validating for an update. If the 'nid' property is present in the node then
   // this is an update and validation can be different for updates
