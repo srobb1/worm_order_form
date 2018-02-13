@@ -1,6 +1,5 @@
 <?php
 $worm_order_form  = $variables['node']->worm_order_form;
-dpm($worm_order_form,'worm_order_form');
 ?>
 <div class="tripal_worm_order_form-data-block-desc tripal-data-block-desc"></div> <?php
 

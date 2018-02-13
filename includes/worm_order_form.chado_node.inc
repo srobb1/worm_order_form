@@ -372,7 +372,6 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
 
 
 function worm_order_form_customize_comment_form(&$form) {
-dpm($form,'form');
   foreach (array('delivery_address', 'comments' , 'status_notes') as $field){
 
     $form[$field]['format']['format']['#access']=FALSE;
@@ -404,7 +403,6 @@ dpm($form,'form');
  * @ingroup worm_order_form
  */
 function chado_worm_order_form_validate($node, $form, &$form_state) {
-dpm($node,'validate');
   // We only want to validate when the node is saved.
   // Since this validate can be called on AJAX and Deletion of the node
   // we need to make this check to ensure queries are not executed
@@ -470,7 +468,6 @@ dpm($node,'validate');
  * @ingroup worm_order_form
  */
 function chado_worm_order_form_insert($node) {
-dpm($node,'insert');
   $worm_order_form_id = '';
 
   // if there is an worm_order_form_id in the $node object then this must be a sync so
@@ -505,10 +502,7 @@ dpm($node,'insert');
       'request_date' => format_date($node->created, 'custom', 'l j F Y'), 
       'biotype' => $biotype,
     );
-dpm($values,'about to insert');
-dpm($node,'about to insert');
     $worm_order_form = chado_insert_record('worm_order_form', $values);
-dpm($worm_order_form,'worm_order_form');
     if (!$worm_order_form) {
       drupal_set_message(t('Unable to add worm_order_form.'), 'warning');
       tripal_report_error('worm_order_form', TRIPAL_WARNING, 'Insert worm_order_form: Unable to create worm_order_form where values: %values',
@@ -518,7 +512,6 @@ dpm($worm_order_form,'worm_order_form');
 
     // get the worm_order_form_id for linking Drupal node with Chado data
     $worm_order_form_id = $worm_order_form['worm_order_form_id'];
-dpm($worm_order_form_id,'worm_order_form_id');
 
     // Only add to other Chado tables if the base record was inserted properly
     if ($worm_order_form_id > 0) {
@@ -543,10 +536,8 @@ dpm($worm_order_form_id,'worm_order_form_id');
 
   // Make sure the entry for this worm_order_form doesn't already exist in the
   // chado_worm_order_form table if it doesn't exist then we want to add it.
-dpm('about to check');
    $check_org_id = chado_get_id_from_nid('worm_order_form', $node->nid);
   if (!$check_org_id) {
-dpm($check_org_id,'check_org_id');
     $record = new stdClass();
     $record->nid = $node->nid;
     $record->vid = $node->vid;
@@ -565,7 +556,6 @@ dpm($check_org_id,'check_org_id');
  * @ingroup worm_order_form
  */
 function chado_worm_order_form_update($node) {
-dpm($node,'update');
   // be sure to always trim text fields
   $worm_order_form_id = chado_get_id_from_nid('worm_order_form', $node->nid) ;
   // use the chado_update_record() function to update the record
@@ -800,7 +790,6 @@ function worm_order_form_node_insert($node) {
   // the Ontology Term Submission code below will set the URL path after inserting. We do it here
   // because we do not know the worm_order_form_id in the pre-save and cannot do it in
   // the hook_insert()
-dpm($node,'insite isert ufnction');
   switch ($node->type) {
     case 'chado_worm_order_form':
 
@@ -820,7 +809,6 @@ dpm($node,'insite isert ufnction');
       );
       $worm_order_form = chado_generate_var('worm_order_form', $values);
       $node->worm_order_form = $worm_order_form;
-dpm($node,'after insert');
 
       // EXPLANATION: You can allow the site admin to customize the
       // title and URL of your node.  The 'Chado Node: Title & Path API'
