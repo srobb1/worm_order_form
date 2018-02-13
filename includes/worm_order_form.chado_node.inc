@@ -976,7 +976,7 @@ function worm_order_form_node_view($node, $view_mode, $langcode) {
 
 function chado_worm_order_form_chado_node_default_title_format() {
   //return '[worm_order_form.uniquename] ([worm_order_form.type_id>cvterm.name]) [worm_order_form.organism_id>organism.genus] [worm_order_form.organism_id>organism.species]';
-  return 'Worm Order ID:[worm_order_form.worm_order_form_id] by [worm_order_form.contact_name]' ;
+  return 'Worm Order [worm_order_form.worm_order_form_id]: [worm_order_form.worm_quantity] [worm_order_form.biotype] by [worm_order_form.contact_name] [worm_order_form.request_date]' ;
 }
 
 /**
