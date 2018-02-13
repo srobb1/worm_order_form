@@ -150,7 +150,7 @@ function chado_worm_order_form_form($node, &$form_state) {
   $worm_order_form_id   = null; // when editing an worm_order_form record we'll have an worm_order_form_id
 
   // initialize the defaults for the form fields
-  $worm_quanity   = '';
+  $worm_quantity   = '';
   $worm_biotype   = '';
   $contact_name  = '';
   $contact_email = '';
@@ -484,7 +484,7 @@ dpm($node,'insert');
     // get the worm_order_form type record
     // perform the insert using the chado_insert_record function();
         $biotype = 'Schmidtea mediterranea Asexuals';
-        if ($worm_biotype == 1){
+        if ($node->worm_biotype == 1){
           $biotype = 'Schmidtea mediterranea Sexuals';
         }
     $values = array(
@@ -763,7 +763,7 @@ function worm_order_form_node_presave($node) {
         // set the title
         //$library_term = tripal_get_cvterm(array('cvterm_id' => $node->worm_order_form_id));
         $biotype = 'Schmidtea mediterranea Asexuals';
-        if ($worm_biotype == 1){
+        if ($node->worm_biotype == 1){
           $biotype = 'Schmidtea mediterranea Sexuals';
         }
         $node->title = "Worm Order: $node->worm_quantity $biotype by $node->contact_name $order_date";
@@ -976,7 +976,7 @@ function worm_order_form_node_view($node, $view_mode, $langcode) {
 
 function chado_worm_order_form_chado_node_default_title_format() {
   //return '[worm_order_form.uniquename] ([worm_order_form.type_id>cvterm.name]) [worm_order_form.organism_id>organism.genus] [worm_order_form.organism_id>organism.species]';
-  return 'WormOrderID:[worm_order_form.worm_order_form_id] by [worm_order_form.contact_name]' ;
+  return 'Worm Order ID:[worm_order_form.worm_order_form_id] by [worm_order_form.contact_name]' ;
 }
 
 /**
