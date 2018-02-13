@@ -124,10 +124,32 @@ function worm_order_form_create_custom_role(){
  * @ingroup worm_order_form
  */
 function worm_order_form_uninstall() {
-   
+  
 
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    // Restrict to BLASTDB nodes.
+    ->entityCondition('bundle','chado_worm_order_form')
+    // Restrict to Published nodes.
+    ->propertyCondition('status', 1)
+    // Restrict to nodes the current user has permission to view.
+    ->addTag('node_access');
+  $entities = $query->execute();
+
+  // Get all BlastDB nodes and delete them
+  $nodes = node_load_multiple(array_keys($entities['node']));
+  foreach ($nodes as $node) {
+    print "Delete node " . $node->title . "\n";
+    $nrs = node_revision_list($node);
+    foreach ($nrs as $nr) {
+      node_revision_delete($nr->vid);
+    }
+    node_delete($node->nid);
+  } 
+    
     db_drop_table('chado.worm_order_form');
-     user_role_delete('worm_order_form_admin');
+    user_role_delete('worm_order_form_admin');
 
 }
 
@@ -349,7 +371,7 @@ function worm_order_form_add_worm_order_form_table() {
         'type' => 'varchar',
         'length' => '255',
       ),
-      'agreement' => array(
+      'condition_acknowledgement' => array(
         'type' => 'int',
         'not null' => TRUE,
       ),
@@ -359,13 +381,21 @@ function worm_order_form_add_worm_order_form_table() {
       'status_notes' => array(
         'type' => 'text',
       ),
+      'biotype'=> array(
+        'type' => 'varchar',
+        'length' => '255',
+      ),
+      'request_date' => array(
+        'type' => 'varchar',
+        'length' => '255',
+      ),
     ),
     'primary key' => array(
       0 => 'worm_order_form_id',
     ),
     'unique keys' => array(
       'worm_order_form_uq1' => array(
-        0 => 'term_name',
+        0 => 'worm_order_form_id',
         1 => 'contact_name',
       ),
     ),

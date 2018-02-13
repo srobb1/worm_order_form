@@ -1,14 +1,9 @@
 <?php
-$onto_term_submit  = $variables['node']->onto_term_submit;
+$worm_order_form  = $variables['node']->worm_order_form;
+dpm($worm_order_form,'worm_order_form');
 ?>
-<div class="tripal_onto_term_submit-data-block-desc tripal-data-block-desc"></div> <?php
+<div class="tripal_worm_order_form-data-block-desc tripal-data-block-desc"></div> <?php
 
-print "<h3>This is a summary of the term submission.</h3>
-<ul>
-  <li>The status will be updated as progress is made on the review and addition of the term into the ontology.</li>
-  <li>Bookmark the URL of this page to return and check the status</li>
-  <li><a href=\"/ontology-term-submission\">Click</a> here to view all submissions.</li>
-</ul>";
 
   global $user;
   $admin_rid = user_role_load_by_name('administrator')->rid; 
@@ -25,13 +20,20 @@ $headers = array();
 // can be found here:
 // https://api.drupal.org/api/drupal/includes%21theme.inc/function/theme_table/7
 $rows = array();
-// Type row
+$rows[] = array(
+  array(
+    'data' => 'Order Date',
+    'header' => TRUE
+  ),
+  $worm_order_form->request_date
+);
+
 $rows[] = array(
   array(
     'data' => 'Worm Quantity',
     'header' => TRUE
   ),
-  $onto_term_submit->worm_quantity
+  $worm_order_form->worm_quantity
 );
 // Unique Name row
 $rows[] = array(
@@ -39,16 +41,7 @@ $rows[] = array(
     'data' => 'Biotype',
     'header' => TRUE
   ),
-  $onto_term_submit->worm_biotype
-);
-
-// definition row
-$rows[] = array(
-  array(
-    'data' => 'Definition',
-    'header' => TRUE
-  ),
-  $onto_term_submit->definition
+  $worm_order_form->biotype
 );
 
 
@@ -58,7 +51,7 @@ $rows[] = array(
     'data' => 'Lab head',
     'header' => TRUE
   ),
-  $onto_term_submit->contact_lab_head
+  $worm_order_form->contact_lab_head
 );
 // Type row
 $rows[] = array(
@@ -66,7 +59,7 @@ $rows[] = array(
     'data' => 'Contact Position',
     'header' => TRUE
   ),
-  $onto_term_submit->contact_position
+  $worm_order_form->contact_position
 );
 
 // Type row
@@ -75,7 +68,7 @@ $rows[] = array(
     'data' => 'Shipping Address',
     'header' => TRUE
   ),
-  $onto_term_submit->sydelivery_addressns
+  $worm_order_form->delivery_address
 );
 
 // Type row
@@ -84,7 +77,7 @@ $rows[] = array(
     'data' => 'Shipping Phone',
     'header' => TRUE
   ),
-  $onto_term_submit->delivery_phone
+  $worm_order_form->delivery_phone
 );
 
 $rows[] = array(
@@ -92,7 +85,7 @@ $rows[] = array(
     'data' => 'FedEx Account',
     'header' => TRUE
   ),
-  $onto_term_submit->fedex_account
+  $worm_order_form->fedex_account
 );
 
 // Type row
@@ -101,7 +94,7 @@ $rows[] = array(
     'data' => 'Comments',
     'header' => TRUE
   ),
-  $onto_term_submit->comments
+  $worm_order_form->comments
 );
 
 // Type row
@@ -110,7 +103,7 @@ $rows[] = array(
     'data' => 'Contact Name',
     'header' => TRUE
   ),
-  $onto_term_submit->contact_name
+  $worm_order_form->contact_name
 );
 
 $rows[] = array(
@@ -118,7 +111,7 @@ $rows[] = array(
     'data' => 'Receiver Name',
     'header' => TRUE
   ),
-  $onto_term_submit->receiver_name
+  $worm_order_form->receiver_name
 );
 
 
@@ -128,7 +121,7 @@ $rows[] = array(
     'data' => 'Contact Email',
     'header' => TRUE
   ),
-  $onto_term_submit->contact_email
+  $worm_order_form->contact_email
 );
 
 
@@ -136,14 +129,14 @@ $rows[] = array(
 
 // Type row
 $statuses = array ('Worms Requested','Order being processed', 'Order Shipped');
-$status = $statuses[$onto_term_submit->sstatus];
+$status = $statuses[$worm_order_form->sstatus];
 $rows[] = array(
   array(
     'data' => 'Status',
     'header' => TRUE
   ),
   $status
-//  $onto_term_submit->status
+//  $worm_order_form->status
 );
 // Type row
 if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin_rid])){
@@ -152,10 +145,10 @@ $rows[] = array(
     'data' => 'Status Notes',
     'header' => TRUE
   ),
-  $onto_term_submit->status_notes
+  $worm_order_form->status_notes
 );
 }
-// allow site admins to see the onto_term_submit ID
+// allow site admins to see the worm_order_form ID
 if (user_access('view ids')) {
   // Feature ID
   $rows[] = array(
@@ -165,7 +158,7 @@ if (user_access('view ids')) {
       'class' => 'tripal-site-admin-only-table-row',
     ),
     array(
-      'data' => $onto_term_submit->worm_order_form_id,
+      'data' => $worm_order_form->worm_order_form_id,
       'class' => 'tripal-site-admin-only-table-row',
     ),
   );

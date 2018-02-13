@@ -177,6 +177,7 @@ function chado_worm_order_form_form($node, &$form_state) {
     $delivery_address  = $worm_order_form->delivery_address;
     $delivery_phone = $worm_order_form->delivery_phone;
     $fedex_account = $worm_order_form->fedex_account;
+    $condition_acknowledgement = $worm_order_form->condition_acknowledgement;
     $receiver_name  = $worm_order_form->receiver_name;
     $contact_name  = $worm_order_form->contact_name;
     $contact_email = $worm_order_form->contact_email;
@@ -200,6 +201,7 @@ function chado_worm_order_form_form($node, &$form_state) {
      $delivery_address  = $form_state['values']['delivery_address'];
      $delivery_phone = $form_state['values']['delivery_phone'];
      $fedex_account  = $form_state['values']['fedex_account'];
+     $condition_acknowledgement  = $form_state['values']['condition_acknowledgement'];
      $receiver_name  = $form_state['values']['receiver_name'];
      $contact_name  = $form_state['values']['contact_name'];
      $contact_email  = $form_state['values']['contact_email'];
@@ -217,6 +219,7 @@ function chado_worm_order_form_form($node, &$form_state) {
      $delivery_address  = $form_state['input']['delivery_address'];
      $delivery_phone = $form_state['input']['delivery_phone'];
      $fedex_account  = $form_state['input']['fedex_account'];
+     $condition_acknowledgement  = $form_state['input']['condition_acknowledgement'];
      $receiver_name  = $form_state['input']['receiver_name'];
      $contact_name  = $form_state['input']['contact_name'];
      $contact_email  = $form_state['input']['contact_email'];
@@ -331,6 +334,13 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
     '#description' => t('Enter any notes about workflow progress.'),
   );
 }
+  $form['condition_acknowledgement'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Agree to Terms and Conditions'),
+    '#required' => TRUE,
+    '#default_value' => $condition_acknowledgement,
+    '#description' => t('REQUIRED. For your request to be submittted you must agree to the terms and conditions [add link]'),
+  );
 
   // PROPERTIES FORM
   //---------------------------------------------
@@ -362,6 +372,7 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
 
 
 function worm_order_form_customize_comment_form(&$form) {
+dpm($form,'form');
   foreach (array('delivery_address', 'comments' , 'status_notes') as $field){
 
     $form[$field]['format']['format']['#access']=FALSE;
@@ -393,6 +404,7 @@ function worm_order_form_customize_comment_form(&$form) {
  * @ingroup worm_order_form
  */
 function chado_worm_order_form_validate($node, $form, &$form_state) {
+dpm($node,'validate');
   // We only want to validate when the node is saved.
   // Since this validate can be called on AJAX and Deletion of the node
   // we need to make this check to ensure queries are not executed
@@ -458,6 +470,7 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
  * @ingroup worm_order_form
  */
 function chado_worm_order_form_insert($node) {
+dpm($node,'insert');
   $worm_order_form_id = '';
 
   // if there is an worm_order_form_id in the $node object then this must be a sync so
@@ -469,12 +482,11 @@ function chado_worm_order_form_insert($node) {
     $node->worm_quantity   = trim($node->worm_quantity);
     //$node->description  = property_exists('description', $node) : trim($node->description['value']) ? '';
     // get the worm_order_form type record
-    $type_cv = tripal_get_default_cv('worm_order_form', 'type_id');
-    $type = tripal_get_cvterm(array(
-        'cv_id' => $node->worm_order_form_type,
-       // 'cv_id' => $type_cv->cv_id,
-    ));
     // perform the insert using the chado_insert_record function();
+        $biotype = 'Schmidtea mediterranea Asexuals';
+        if ($worm_biotype == 1){
+          $biotype = 'Schmidtea mediterranea Sexuals';
+        }
     $values = array(
       'worm_quantity' => $node->worm_quantity,
       'worm_biotype' => $node->worm_biotype,
@@ -483,14 +495,20 @@ function chado_worm_order_form_insert($node) {
       'delivery_address' => $node->delivery_address['value'],
       'delivery_phone' => $node->delivery_phone,
       'fedex_account' => $node->fedex_account,
+      'condition_acknowledgement' => $node-> condition_acknowledgement,
       'receiver_name' => $node->receiver_name,
       'contact_name' => $node->contact_name,
       'contact_email' => $node->contact_email,
       'comments' => $node->comments['value'],
       'sstatus' => $node->sstatus,
       'status_notes' => $node->status_notes['value'],
+      'request_date' => format_date($node->created, 'custom', 'l j F Y'), 
+      'biotype' => $biotype,
     );
+dpm($values,'about to insert');
+dpm($node,'about to insert');
     $worm_order_form = chado_insert_record('worm_order_form', $values);
+dpm($worm_order_form,'worm_order_form');
     if (!$worm_order_form) {
       drupal_set_message(t('Unable to add worm_order_form.'), 'warning');
       tripal_report_error('worm_order_form', TRIPAL_WARNING, 'Insert worm_order_form: Unable to create worm_order_form where values: %values',
@@ -500,6 +518,7 @@ function chado_worm_order_form_insert($node) {
 
     // get the worm_order_form_id for linking Drupal node with Chado data
     $worm_order_form_id = $worm_order_form['worm_order_form_id'];
+dpm($worm_order_form_id,'worm_order_form_id');
 
     // Only add to other Chado tables if the base record was inserted properly
     if ($worm_order_form_id > 0) {
@@ -514,32 +533,6 @@ function chado_worm_order_form_insert($node) {
         // the value of the worm_order_form_id key
         'foreignkey_value' => $worm_order_form_id
       );
-      chado_update_node_form_properties($node, $details);
-/*
-      // If you implemented the dbxrefs form in chado_worm_order_form_form then you need
-      // to handle inserting these database references into your Chado _dbxref
-      // table.
-      $details = array(
-        // the name of your _dbxref table
-        'linking_table'    => 'worm_order_form_dbxref',
-        // the name of the key in your base table
-        'foreignkey_name'  => 'worm_order_form_id',
-        // the value of the worm_order_form_id key
-        'foreignkey_value' => $worm_order_form_id
-      );
-      chado_update_node_form_dbxrefs($node, $details);
-
-      // If you implemented the relationships form in chado_worm_order_form_form then
-      // you need to handle inserting these relationships into your Chado
-      // _relationship table.
-      $details = array(
-        // name of the _relationship table
-        'relationship_table' => 'worm_order_form_relationship',
-        // value of the worm_order_form_id key
-        'foreignkey_value' => $worm_order_form_id
-      );
-      chado_update_node_form_relationships($node, $details);
- */ 
    }
   }
   else {
@@ -550,8 +543,10 @@ function chado_worm_order_form_insert($node) {
 
   // Make sure the entry for this worm_order_form doesn't already exist in the
   // chado_worm_order_form table if it doesn't exist then we want to add it.
+dpm('about to check');
    $check_org_id = chado_get_id_from_nid('worm_order_form', $node->nid);
   if (!$check_org_id) {
+dpm($check_org_id,'check_org_id');
     $record = new stdClass();
     $record->nid = $node->nid;
     $record->vid = $node->vid;
@@ -570,6 +565,7 @@ function chado_worm_order_form_insert($node) {
  * @ingroup worm_order_form
  */
 function chado_worm_order_form_update($node) {
+dpm($node,'update');
   // be sure to always trim text fields
   $worm_order_form_id = chado_get_id_from_nid('worm_order_form', $node->nid) ;
   // use the chado_update_record() function to update the record
@@ -577,14 +573,15 @@ function chado_worm_order_form_update($node) {
     'worm_order_form_id' => $worm_order_form_id,
   );
   $values = array(
-    'worm_quantity' => trim($node->worm_quantity),
+    'worm_quantity' => $node->worm_quantity,
     'worm_biotype' => $node->worm_biotype ,
     'sstatus' => $node->sstatus,
     'contact_lab_head' => trim($node->contact_lab_head),
     'contact_position' => trim($node->contact_position),
     'delivery_address' => trim($node->delivery_address['value']),
      'delivery_phone' => trim($node->delivery_phone),
-    'fedex_account' => trim($fedex_account),
+    'fedex_account' => trim($node->fedex_account),
+    'condition_acknowledgement' => $node->condition_acknowledgement,
     'receiver_name' => trim($node->receiver_name),
     'contact_name' => trim($node->contact_name),
     'contact_email' => trim($node->contact_email),
@@ -593,7 +590,6 @@ function chado_worm_order_form_update($node) {
   );
   $options = array('return_record' => TRUE);
   $update_status = chado_update_record('worm_order_form', $match, $values, $options);
-
   if (!$update_status) {
     drupal_set_message(t('Unable to update worm_order_form.'), 'warning');
     tripal_report_error('worm_order_form', TRIPAL_WARNING, 'Update worm_order_form: Unable to update worm_order_form where values: %values',
@@ -607,7 +603,7 @@ function chado_worm_order_form_update($node) {
     'foreignkey_name' => 'worm_order_form_id', // the name of the key in your base table
     'foreignkey_value' => $worm_order_form_id  // the value of the worm_order_form_id key
   );
-  chado_update_node_form_properties($node, $details);
+  //chado_update_node_form_properties($node, $details);
 /*
   // If you implemented the dbxrefs form in chado_worm_order_form_form then you need to
   // handle updating these database references into your Chado _dbxref table.
@@ -709,6 +705,8 @@ function chado_worm_order_form_load($nodes) {
     // cases it is probably best to let the end-user decide if text fields
     // should be included by using this function in the templates.
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.worm_quantity');
+    $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.request_date');
+    $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.biotype');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.contact_lab_head');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.contact_position');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.delivery_address');
@@ -760,6 +758,7 @@ function worm_order_form_node_presave($node) {
     case 'chado_worm_order_form':
       // for a form submission the 'uniquename' field will be set,
       // for a sync, we must pull from the worm_order_form object
+      $order_date = format_date($node->created, 'custom', 'l j F Y');
       if (property_exists($node, 'worm_quantity')) {
         // set the title
         //$library_term = tripal_get_cvterm(array('cvterm_id' => $node->worm_order_form_id));
@@ -767,10 +766,10 @@ function worm_order_form_node_presave($node) {
         if ($worm_biotype == 1){
           $biotype = 'Schmidtea mediterranea Sexuals';
         }
-        $node->title = "Worm Order $node->created $node->worm_quantity $biotype by $node->contact_name";
+        $node->title = "Worm Order: $node->worm_quantity $biotype by $node->contact_name $order_date";
      }
       else if (property_exists($node, 'worm_order_form')) {
-        $node->title = "Worm Order $node->created : $node->worm_order_form->worm_quantity $biotype by $node->worm_order_form->contact_name";
+        $node->title = "Worm Order: $node->worm_order_form->worm_quantity $biotype by $node->worm_order_form->contact_name $order_date";
       }
       break;
   }
@@ -801,16 +800,27 @@ function worm_order_form_node_insert($node) {
   // the Ontology Term Submission code below will set the URL path after inserting. We do it here
   // because we do not know the worm_order_form_id in the pre-save and cannot do it in
   // the hook_insert()
+dpm($node,'insite isert ufnction');
   switch ($node->type) {
     case 'chado_worm_order_form':
 
       // find the worm_order_form and add in the details
       $worm_order_form_id = chado_get_id_from_nid('worm_order_form', $node->nid);
       // build the worm_order_form variable by using the chado_generate_var() function
-      $values = array('worm_order_form_id' => $worm_order_form_id);
+
+      $biotype = 'Schmidtea mediterranea Asexuals';
+      if ($node->worm_biotype == 1){
+         $biotype = 'Schmidtea mediterranea Sexuals';
+      }
+      $values = array(
+        'worm_order_form_id' => $worm_order_form_id,
+        'request_date' => format_date($node->created, 'custom', 'l j F Y'),
+        'biotype' => $biotype,
+   
+      );
       $worm_order_form = chado_generate_var('worm_order_form', $values);
       $node->worm_order_form = $worm_order_form;
-
+dpm($node,'after insert');
 
       // EXPLANATION: You can allow the site admin to customize the
       // title and URL of your node.  The 'Chado Node: Title & Path API'
@@ -966,7 +976,7 @@ function worm_order_form_node_view($node, $view_mode, $langcode) {
 
 function chado_worm_order_form_chado_node_default_title_format() {
   //return '[worm_order_form.uniquename] ([worm_order_form.type_id>cvterm.name]) [worm_order_form.organism_id>organism.genus] [worm_order_form.organism_id>organism.species]';
-  return 'Worm Order: OrderID [worm_order_form.worm_order_form_id] by [worm_order_form.contact_name]';
+  return 'WormOrderID:[worm_order_form.worm_order_form_id] by [worm_order_form.contact_name]' ;
 }
 
 /**

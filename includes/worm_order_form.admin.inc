@@ -73,6 +73,9 @@ function worm_order_form_admin() {
         // preferable.
         // See the tripal feature module for a good example of this.
       '[worm_order_form.worm_order_form_id]' => 'Unique Constraint: The Chado ID for Examples',
+  //      '[worm_order_form.worm_quantity]' => 'number of worms requested', 
+  //      '[worm_order_form.biotype]' => 'biotype requested',
+  //      '[worm_order_form.request_date]' = 'date of worm from submission',
     
     ),
     // the token indicating the unique constraint in the options array
