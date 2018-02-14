@@ -35,23 +35,23 @@ function worm_order_form_permission() {
   // to specify which user roles are allowed to perform specific actions.
   return array(
     'access chado_worm_order_form content' => array(
-      'title' => t('View Ontology Term Submissions'),
+      'title' => t('View Worm Orders'),
       'description' => t('Allow users to view worm_order_form pages.'),
     ),
     'create chado_worm_order_form content' => array(
-      'title' => t('Create Ontology Term Submissions'),
+      'title' => t('Create Worm Orders'),
       'description' => t('Allow users to create new worm_order_form pages.'),
     ),
     'delete chado_worm_order_form content' => array(
-      'title' => t('Delete Ontology Term Submissions'),
+      'title' => t('Delete Worm Orders'),
       'description' => t('Allow users to delete worm_order_form pages.'),
     ),
     'edit chado_worm_order_form content' => array(
-      'title' => t('Edit Ontology Term Submissions'),
+      'title' => t('Edit Worm Orders'),
       'description' => t('Allow users to edit worm_order_form pages.'),
     ),
     'administer tripal worm_order_form' => array(
-      'title' => t('Administer Ontology Term Submissions'),
+      'title' => t('Administer Worm Orders'),
       'description' => t('Allow users to administer all worm_order_forms.'),
     ),
   );
@@ -97,6 +97,8 @@ function worm_order_form_menu() {
     // module loading time.
     'file' => '/includes/worm_order_form.admin.inc',
   );
+  
+
 
   // EXPLANATION: all extension modules should provide help documentation to
   // describe the functionality of the module and any installation or setup

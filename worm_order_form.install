@@ -374,6 +374,7 @@ function worm_order_form_add_worm_order_form_table() {
       'condition_acknowledgement' => array(
         'type' => 'int',
         'not null' => TRUE,
+        'description' => 'Terms And Conditions Agreement'
       ),
       'sstatus' => array(
         'type' => 'int',
@@ -384,10 +385,12 @@ function worm_order_form_add_worm_order_form_table() {
       'biotype'=> array(
         'type' => 'varchar',
         'length' => '255',
+        'description' => 'Name of Biotype'
       ),
       'request_date' => array(
         'type' => 'varchar',
         'length' => '255',
+            'description' =>  'Date Of Order Submission',
       ),
     ),
     'primary key' => array(

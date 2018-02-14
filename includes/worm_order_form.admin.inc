@@ -21,23 +21,14 @@ function worm_order_form_admin_examples_listing() {
   // EXPLANATION:  Typically for all Tripal modules the home administrative page
   // for the module contains a search form to help the adminstrator locate
   // records. The following example code adds a default View to the page
-  /*
   // Add the view
-  $view = views_embed_view('worm_order_form_admin_examples','default');
+  $view = views_embed_view('worm_orders','default');
   if (isset($view)) {
     $output .= $view;
   }
   else {
-    $output .= '<p>The Tripal Example Module uses primarily views to provide an '
-      . 'administrative interface. Currently one or more views needed for this '
-      . 'administrative interface are disabled. <strong>Click each of the following links to '
-      . 'enable the pertinent views</strong>:</p>';
-    $output .= '<ul>';
-      $output .= '<li>'.l('Example Admin', 'admin/tripal/chado/worm_order_form/views/examples/enable').'</li>';
-    $output .= '</ul>';
+    $output = 'Typically a search view goes here';
   }
-  */
-  $output = 'Typically a search view goes here';
 
   return $output;
 }
@@ -48,11 +39,6 @@ function worm_order_form_admin_examples_listing() {
  * @ingroup worm_order_form
  */
 function worm_order_form_admin() {
-  $form = array();
-
-  $form['nothing'] = array(
-    '#markup' => t('There are currently no settings to configure.')
-  );
 
   // If your module is using the Chado Node: Title & Path API to allow custom
   // titles for your node type then you need to add the configuration form for

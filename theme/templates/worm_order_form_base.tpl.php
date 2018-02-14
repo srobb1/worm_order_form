@@ -180,4 +180,7 @@ $table = array(
 );
 // once we have our table array structure defined, we call Drupal's
 // theme_table() function to generate the table.
-print theme_table($table); ?>
+print theme_table($table); 
+$path = drupal_get_path('module', 'worm_order_form');
+print "<b><a href=\"/search/worm-order-form.csv?worm_order_form_id=$worm_order_form->worm_order_form_id&contact_name=All&contact_lab_head=&sstatus=All\"><img src=\"/$path/theme/img/download_csv.png\"></a>";
+?>

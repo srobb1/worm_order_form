@@ -274,16 +274,17 @@ $form['contact_lab_head'] = array(
   $form['delivery_phone'] = array(
     '#type' => 'textfield',
     '#title' => t('Shipping Phone Number'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#default_value' => $delivery_phone,
     '#description' => t('REQUIRED. Needed for FedEx delivery.'), 
   );
 
   $form['fedex_account'] = array(
     '#type' => 'textfield',
-    '#title' => t('FedEx Account Number'),
+    '#title' => t('FedEx/UPS Account Number'),
     '#default_value' => $fedex_account,
-    '#description' => t('REQUIRED. Needed to cover the costs of FedEx delivery'),
+    '#description' => t('REQUIRED. Please prefix account number with FEDEX or UPS. Account number will be used to cover shipping costs'),
+    '#required' => TRUE,
     '#maxlength' => 255
   );
 
@@ -339,7 +340,7 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
     '#title' => t('Agree to Terms and Conditions'),
     '#required' => TRUE,
     '#default_value' => $condition_acknowledgement,
-    '#description' => t('REQUIRED. For your request to be submittted you must agree to the terms and conditions [add link]'),
+    '#description' => t('REQUIRED. For your request to be submittted you must agree to the terms and conditions. <a target="_blank"  href="/worm_request">Review Terms and Conditions</a>'),
   );
 
   // PROPERTIES FORM
@@ -499,7 +500,7 @@ function chado_worm_order_form_insert($node) {
       'comments' => $node->comments['value'],
       'sstatus' => $node->sstatus,
       'status_notes' => $node->status_notes['value'],
-      'request_date' => format_date($node->created, 'custom', 'l j F Y'), 
+      'request_date' => format_date($node->created, 'custom', "Y-m-d"), 
       'biotype' => $biotype,
     );
     $worm_order_form = chado_insert_record('worm_order_form', $values);
@@ -748,7 +749,7 @@ function worm_order_form_node_presave($node) {
     case 'chado_worm_order_form':
       // for a form submission the 'uniquename' field will be set,
       // for a sync, we must pull from the worm_order_form object
-      $order_date = format_date($node->created, 'custom', 'l j F Y');
+      $order_date = format_date($node->created, 'custom', "Y-m-d");
       if (property_exists($node, 'worm_quantity')) {
         // set the title
         //$library_term = tripal_get_cvterm(array('cvterm_id' => $node->worm_order_form_id));
@@ -803,7 +804,7 @@ function worm_order_form_node_insert($node) {
       }
       $values = array(
         'worm_order_form_id' => $worm_order_form_id,
-        'request_date' => format_date($node->created, 'custom', 'l j F Y'),
+        'request_date' => format_date($node->created, 'custom', "Y-m-d"),
         'biotype' => $biotype,
    
       );
