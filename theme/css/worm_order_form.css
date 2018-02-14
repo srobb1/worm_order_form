@@ -2,3 +2,8 @@
     border-top: 0;
     padding: 0;
 }
+
+
+#chado-worm-order-node-form .feed-icon {
+    padding-top: 10px;
+}
