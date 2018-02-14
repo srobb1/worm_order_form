@@ -4,6 +4,14 @@
 }
 
 
-#chado-worm-order-node-form .feed-icon {
+.view-worm-orders .feed-icon img {
     padding-top: 10px;
+    padding-left: 0;
+}
+
+
+
+.view-worm-orders input.form-submit, a.button {
+    margin-left: -20px;
+    margin-top: 10px;
 }

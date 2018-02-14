@@ -162,7 +162,7 @@ function chado_worm_order_form_form($node, &$form_state) {
   $fedex_account = '';
   $condition_acknowledgement = '';
   $comments = '';
-  $sstatus = '';
+  $sstatus = '' ;
   $status_notes= '';
 
   // if we are editing an existing node then the 'worm_order_form' record from Chado
@@ -330,7 +330,7 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
   $form['sstatus'] = array(
     '#type' => t('select'),
     '#title' => t('Status'),
-    '#options' => array(0 => 'Worms Requested',1 => 'Order being processed', 2 => 'Order Shipped' , 'Issues' => 3 , 'Declined' => 4),
+    '#options' => array(0 => 'Worms Requested',1 => 'Order Being Processed', 2 => 'Order Shipped' , 3 => 'Issues With Order' , 4 => 'Order Declined'),
     '#default_value' => $sstatus,
     '#description' => t('Select the appropriate term to indicate the workflow progress.'),
 
@@ -505,7 +505,7 @@ function chado_worm_order_form_insert($node) {
       'contact_name' => $node->contact_name,
       'contact_email' => $node->contact_email,
       'comments' => $node->comments['value'],
-      'sstatus' => $node->sstatus,
+      'sstatus' => $node->sstatus ? defined($node->sstatus) : 0,
       'status_notes' => $node->status_notes['value'],
       'request_date' => format_date($node->created, 'custom', "Y-m-d"), 
       'biotype' => $biotype,
