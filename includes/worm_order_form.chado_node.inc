@@ -497,7 +497,7 @@ function chado_worm_order_form_insert($node) {
       'worm_biotype' => $node->worm_biotype,
       'contact_lab_head' => $node->contact_lab_head,
       'contact_position' => $node->contact_position,
-    'delivery_address' => trim(preg_replace('/\s\s+/', ' ', $node->delivery_address['value']));//  trim($node->delivery_address['value']),
+    'delivery_address' => trim(preg_replace('/\s\s+/', ' ', $node->delivery_address['value'])),//  trim($node->delivery_address['value']),
       'delivery_phone' => $node->delivery_phone,
       'fedex_account' => $node->fedex_account,
       'condition_acknowledgement' => $node-> condition_acknowledgement,
