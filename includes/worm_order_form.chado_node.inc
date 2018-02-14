@@ -43,13 +43,13 @@ function worm_order_form_node_info() {
       'hook_prefix' => 'chado_worm_order_form',
       'record_type_title' => array(
         // how to refer to the record
-        'singular' => t('Worm Order Form Submission'),
+        'singular' => t('Worm Order Submission'),
         // how to refer to the record in plurals
-        'plural' => t('Worm Order Form Submissions')
+        'plural' => t('Worm Order Submissions')
       ),
       'sync_filters' => array(
-        'type_id' => TRUE,     // if the record has a type_id set to TRUE
-        'organism_id' => TRUE  // if the record has an organism_id set to TRUE
+        'type_id' => FALSE,     // if the record has a type_id set to TRUE
+        'organism_id' => FALSE  // if the record has an organism_id set to TRUE
       ),
     )
   );
@@ -248,6 +248,8 @@ function chado_worm_order_form_form($node, &$form_state) {
     '#default_value' => $worm_biotype
   );
 
+
+
 $form['contact_lab_head'] = array(
     '#type' => 'textfield',
     '#title' => t('Lab Head'),
@@ -257,13 +259,40 @@ $form['contact_lab_head'] = array(
 
   ); 
 
+
+
+  $form['contact_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your Name'),
+    '#required' => TRUE,
+    '#default_value' => $contact_name,
+    '#description' => t('REQUIRED. Enter Your Name.'),
+  );
   $form['contact_position'] = array(
     '#type' => 'textfield',
-    '#title' => t('Contact Position'),
+    '#title' => t('Your Position'),
     '#required' => TRUE,
     '#default_value' => $contact_position,
-    '#description' => t('REQUIRED.Your Position. Examples: Posdoc, Grad Student, Technician, PI'), 
-  ); 
+    '#description' => t('REQUIRED.Your Position. Examples: Posdoc, Grad Student, Technician, PI'),
+  );
+
+  $form['contact_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your E-mail address'),
+    '#required' => TRUE,
+    '#default_value' => $contact_email,
+    '#description' => t('REQUIRED. Enter your email address for us to contact you about this submission.'),
+  );
+
+
+
+  $form['receiver_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Shipping  Name'),
+    '#required' => TRUE,
+    '#default_value' => $receiver_name,
+    '#description' => t('REQUIRED. Enter the name to be used on the FedEx delivery for shipment receiver.'),
+  );
   $form['delivery_address'] = array(
     '#type' => 'text_format',
     '#title' => t('Shipping Address'),
@@ -288,29 +317,7 @@ $form['contact_lab_head'] = array(
     '#maxlength' => 255
   );
 
-  $form['receiver_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Receiver Name'),
-    '#required' => TRUE,
-    '#default_value' => $receiver_name,
-    '#description' => t('REQUIRED. Enter the name to be used on the FedEx delivery for shipment receiver.'),
-  );
   
-  $form['contact_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Your Name'),
-    '#required' => TRUE,
-    '#default_value' => $contact_name,
-    '#description' => t('REQUIRED. Enter Contact Name.'),
-  );
-
-  $form['contact_email'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Your E-mail address'),
-    '#required' => TRUE,
-    '#default_value' => $contact_email,
-    '#description' => t('REQUIRED. Enter your email address for us to contact you about this submission.'),
-  );
 
   $form['comments'] = array(
     '#type' => 'text_format',
@@ -323,7 +330,7 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
   $form['sstatus'] = array(
     '#type' => t('select'),
     '#title' => t('Status'),
-    '#options' => array(0 => 'Worms Requested',1 => 'Order being processed', 2 => 'Order Shipped'),
+    '#options' => array(0 => 'Worms Requested',1 => 'Order being processed', 2 => 'Order Shipped' , 'Issues' => 3 , 'Declined' => 4),
     '#default_value' => $sstatus,
     '#description' => t('Select the appropriate term to indicate the workflow progress.'),
 

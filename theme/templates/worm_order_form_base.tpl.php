@@ -127,7 +127,7 @@ $rows[] = array(
 
 
 // Type row
-$statuses = array ('Worms Requested','Order being processed', 'Order Shipped');
+$statuses = array ('Worms Requested','Order being processed', 'Order Shipped' , 'Issues' , 'Declined');
 $status = $statuses[$worm_order_form->sstatus];
 $rows[] = array(
   array(

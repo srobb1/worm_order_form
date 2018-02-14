@@ -2,7 +2,7 @@
 ; Provide details about your module in this file. Instruction for setup of this
 ; file can be found here: https://drupal.org/node/542202
 
-name = Worm Order Form 
+name = Worm Order 
 description = A module for creating an order form for worms 
 
 ;
