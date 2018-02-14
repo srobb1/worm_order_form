@@ -25,7 +25,7 @@ function worm_order_form_node_info() {
   // with a 'chado_' prefix.
 
   $nodes['chado_worm_order_form'] = array(
-    'name'        => t('Worm Order Form'),
+    'name'        => t('Worm Order'),
     'base'        => 'chado_worm_order_form',
     'description' => t('A record from the fake chado worm_order_form table'),
     'has_title'   => TRUE,
