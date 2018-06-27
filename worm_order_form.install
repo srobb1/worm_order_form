@@ -382,6 +382,21 @@ function worm_order_form_add_worm_order_form_table() {
       'status_notes' => array(
         'type' => 'text',
       ),
+      'date_shipped'=> array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Date Shipped'
+      ),
+      'airbill'=> array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Shipment Airbill ID'
+      ),
+      'shipper_name'=> array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Name of Shipper'
+      ),
       'biotype'=> array(
         'type' => 'varchar',
         'length' => '255',
@@ -396,12 +411,12 @@ function worm_order_form_add_worm_order_form_table() {
     'primary key' => array(
       0 => 'worm_order_form_id',
     ),
-    'unique keys' => array(
-      'worm_order_form_uq1' => array(
-        0 => 'worm_order_form_id',
-        1 => 'contact_name',
-      ),
-    ),
+//    'unique keys' => array(
+//      'worm_order_form_uq1' => array(
+//        0 => 'worm_order_form_id',
+//        1 => 'contact_name',
+//      ),
+//    ),
     'indexes' => array(
       'worm_order_form_idx1' => array(
         0 => 'worm_order_form_id',

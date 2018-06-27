@@ -35,13 +35,13 @@ $rows[] = array(
   $worm_order_form->worm_quantity
 );
 // Unique Name row
-$rows[] = array(
-  array(
-    'data' => 'Biotype',
-    'header' => TRUE
-  ),
-  $worm_order_form->biotype
-);
+//$rows[] = array(
+//  array(
+//    'data' => 'Biotype',
+//    'header' => TRUE
+//  ),
+//  $worm_order_form->biotype
+//);
 
 
 // Type row
@@ -145,6 +145,27 @@ $rows[] = array(
     'header' => TRUE
   ),
   $worm_order_form->status_notes
+);
+$rows[] = array(
+  array(
+    'data' => 'Date Shipped',
+    'header' => TRUE
+  ),
+  $worm_order_form->date_shipped
+);
+$rows[] = array(
+  array(
+    'data' => 'Shipper Name',
+    'header' => TRUE
+  ),
+  $worm_order_form->shipper_name
+);
+$rows[] = array(
+  array(
+    'data' => 'Airbill',
+    'header' => TRUE
+  ),
+  $worm_order_form->airbill
 );
 }
 // allow site admins to see the worm_order_form ID

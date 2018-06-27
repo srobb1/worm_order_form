@@ -151,7 +151,7 @@ function chado_worm_order_form_form($node, &$form_state) {
 
   // initialize the defaults for the form fields
   $worm_quantity   = '';
-  $worm_biotype   = '';
+  $worm_biotype   = 0;
   $contact_name  = '';
   $contact_email = '';
   $contact_position = '';
@@ -163,6 +163,9 @@ function chado_worm_order_form_form($node, &$form_state) {
   $condition_acknowledgement = '';
   $comments = '';
   $sstatus = '' ;
+  $date_shipped = '';
+  $airbill = '' ;
+  $shipper_name = '' ;
   $status_notes= '';
 
   // if we are editing an existing node then the 'worm_order_form' record from Chado
@@ -183,6 +186,9 @@ function chado_worm_order_form_form($node, &$form_state) {
     $contact_email = $worm_order_form->contact_email;
     $comments = $worm_order_form->comments;
     $sstatus = $worm_order_form->sstatus;
+    $date_shipped = $worm_order_form-> date_shipped;
+    $airbill = $worm_order_form-> airbill;
+    $shipper_name = $worm_order_form-> shipper_name;
     $status_notes = $worm_order_form->status_notes;
 
     // keep track of the worm_order_form id
@@ -207,6 +213,9 @@ function chado_worm_order_form_form($node, &$form_state) {
      $contact_email  = $form_state['values']['contact_email'];
      $comments  = $form_state['values']['comments'];
      $sstatus  = $form_state['values']['sstatus'];
+     $date_shipped  = $form_state['values']['date_shipped'];
+     $airbill  = $form_state['values']['airbill'];
+     $shipper_name  = $form_state['values']['shipper_name'];
      $status_notes  = $form_state['values']['status_notes'];
   }
   // if we are re building the form from after submission (from ajax call) then
@@ -225,6 +234,9 @@ function chado_worm_order_form_form($node, &$form_state) {
      $contact_email  = $form_state['input']['contact_email'];
      $comments  = $form_state['input']['comments'];
      $sstatus  = $form_state['input']['sstatus'];
+     $date_shipped  = $form_state['input']['date_shipped'];
+     $airbill  = $form_state['input']['airbill'];
+     $shipper_name  = $form_state['input']['shipper_name'];
      $status_notes  = $form_state['input']['status_notes'];
   }
 
@@ -241,11 +253,13 @@ function chado_worm_order_form_form($node, &$form_state) {
   );
   $form['worm_biotype'] = array(
     '#title'       => t('Worm Biotype'),
-    '#type'        => t('select'),
-    '#description' => t("REQUIRED. Select the biotype."),
-    '#required'    => TRUE,
-    '#options' => array( 0 => "Asexual" ),
-    '#default_value' => $worm_biotype
+    '#type' => 'hidden', 
+    '#value' => $worm_biotype,
+//    '#type'        => t('select'),
+//    '#description' => t("REQUIRED. Select the biotype."),
+//    '#required'    => TRUE,
+//    '#options' => array( 0 => "Asexual" ),
+//    '#default_value' => $worm_biotype
   );
 
 
@@ -291,7 +305,7 @@ $form['contact_lab_head'] = array(
     '#title' => t('Shipping  Name'),
     '#required' => TRUE,
     '#default_value' => $receiver_name,
-    '#description' => t('REQUIRED. Enter the name to be used on the FedEx delivery for shipment receiver.'),
+    '#description' => t('REQUIRED. To whom should the package be addressed?'),
   );
   $form['delivery_address'] = array(
     '#type' => 'text_format',
@@ -335,6 +349,24 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
     '#description' => t('Select the appropriate term to indicate the workflow progress.'),
 
   );
+  $form['date_shipped'] = array(
+    '#type' => t('textfield'),
+    '#title' => t('Date Shipped'),
+    '#default_value' => $date_shipped,
+    '#description' => t('Enter shipping date.'),
+  );
+  $form['airbill'] = array(
+    '#type' => t('textfield'),
+    '#title' => t('Airbill ID'),
+    '#default_value' => $date_shipped,
+    '#description' => t('Enter Shipment Airbill ID.'),
+  );
+  $form['shipper_name'] = array(
+    '#type' => t('textfield'),
+    '#title' => t('Shipper Name'),
+    '#default_value' => $shipper_name,
+    '#description' => t('Enter name of the shipper.'),
+  );
   $form['status_notes'] = array(
     '#type' => 'text_format',
     '#title' => t('Status Notes'),
@@ -374,7 +406,6 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
   // your own node form
 
  $form['#after_build'][] = 'worm_order_form_customize_comment_form';
-
   return $form;
 }
 
@@ -424,13 +455,22 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
   if (!property_exists($node, 'nid') and property_exists($node, 'worm_order_form_id') and $node->worm_order_form_id != 0) {
     return;
   }
-
   // be sure to always trim text fields
   $node->contact_name   = property_exists($node, 'contact_name') ? trim($node->contact_name) : '';
-
   // Validating for an update. If the 'nid' property is present in the node then
   // this is an update and validation can be different for updates
   if (property_exists($node, 'nid')) {
+    if(!valid_email_address($node->contact_email)){
+      form_set_error('worm_order_form_type', t("The email address does not seem correct."));
+    }
+    $phone_ok = array();
+    preg_match("/^([ +\d\-\(\)]+)$/", $node->delivery_phone, $phone_ok);
+    if (empty($phone_ok)){
+      form_set_error('worm_order_form_type', t("The contact phone number does not seem correct."));
+    }
+    if(!is_numeric($node->worm_quantity)){
+       form_set_error('worm_order_form_type', t("The provided worm quantity does not seem correct."));
+    }
     // make sure the worm_order_form type is an allowed term
     //$type_cv = tripal_get_default_cv('worm_order_form', 'type_id');
     //$type = tripal_get_cvterm(array(
@@ -446,6 +486,17 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
   }
   // Validating for an insert
   else {
+    if(!valid_email_address($node->contact_email)){
+      form_set_error('worm_order_form_type', t("The email address does not seem correct."));
+    }
+    $phone_ok = array();
+    preg_match("/^([ +\d\-\(\)]+)$/", $node->delivery_phone, $phone_ok);
+    if (empty($phone_ok)){
+      form_set_error('worm_order_form_type', t("The contact phone number does not seem correct."));
+    }
+    if(!is_numeric($node->worm_quantity)){
+       form_set_error('worm_order_form_type', t("The provided worm quantity does not seem correct."));
+    }
     // make sure the worm_order_form type is an allowed term
     //$type_cv = tripal_get_default_cv('worm_order_form', 'type_id');
    // $type = tripal_get_cvterm(array(
@@ -455,7 +506,6 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
     //if (!$type) {
    //   form_set_error('worm_order_form_type', t("The worm_order_form type is not a valid name from the Sequence Ontology."));
    // }
-
     // TODO: also we should check that the unique constraint doesn't already exist
   }
 }
@@ -506,6 +556,9 @@ function chado_worm_order_form_insert($node) {
       'contact_email' => $node->contact_email,
       'comments' => $node->comments['value'],
       'sstatus' => $node->sstatus ? defined($node->sstatus) : 0,
+      'date_shipped' => $node->comments['date_shipped'],
+      'airbill' => $node->comments['airbill'],
+      'shipper_name' => $node->comments['shipper_name'],
       'status_notes' => $node->status_notes['value'],
       'request_date' => format_date($node->created, 'custom', "Y-m-d"), 
       'biotype' => $biotype,
@@ -574,6 +627,9 @@ function chado_worm_order_form_update($node) {
     'worm_quantity' => $node->worm_quantity,
     'worm_biotype' => $node->worm_biotype ,
     'sstatus' => $node->sstatus,
+    'date_shipped' => trim($node-> date_shipped),
+    'airbill' => trim($node-> airbill),
+    'shipper_name' => trim($node-> shipper_name),
     'contact_lab_head' => trim($node->contact_lab_head),
     'contact_position' => trim($node->contact_position),
     'delivery_address' => trim(preg_replace('/\s\s+/', ' ', $node->delivery_address['value'])),//  trim($node->delivery_address['value']),
@@ -703,6 +759,9 @@ function chado_worm_order_form_load($nodes) {
     // cases it is probably best to let the end-user decide if text fields
     // should be included by using this function in the templates.
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.worm_quantity');
+    $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.date_shipped');
+    $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.airbill');
+    $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.shipper_name');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.request_date');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.biotype');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.contact_lab_head');
