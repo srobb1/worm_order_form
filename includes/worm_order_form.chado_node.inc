@@ -379,7 +379,7 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
     '#title' => t('Agree to Terms and Conditions'),
     '#required' => TRUE,
     '#default_value' => $condition_acknowledgement,
-    '#description' => t('REQUIRED. For your request to be submittted you must agree to the terms and conditions. <a target="_blank"  href="/worm_request">Review Terms and Conditions</a>'),
+    '#description' => t('REQUIRED. For your request to be submittted you must agree to the terms and conditions. <a target="_blank"  href="/worm_request"><strong>Review Terms and Conditions</strong></a>'),
   );
 
   // PROPERTIES FORM
