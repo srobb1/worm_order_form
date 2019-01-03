@@ -330,7 +330,7 @@ $form['contact_lab_head'] = array(
     '#description' => t('REQUIRED. Needed for FedEx delivery.'), 
   );
 
-  $select_carrier = array(0 => t('FedEx'), 1 => t('UPS') , 2 => t('Other: Please specify in comments below'));
+  $select_carrier = array(0 => t('FedEx (Preferred)'), 1 => t('UPS') , 2 => t('Other (Specify in comments below)'));
   $form['carrier'] = array(
     '#type' => 'select',
     '#title' => t('Select Carrier'),
