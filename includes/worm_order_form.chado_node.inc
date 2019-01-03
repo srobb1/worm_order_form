@@ -163,6 +163,7 @@ function chado_worm_order_form_form($node, &$form_state) {
   $fedex_account = '';
   $condition_acknowledgement = '';
   $comments = '';
+  $customs_file_upload = '';
   $sstatus = '' ;
   $date_shipped = '';
   $airbill = '' ;
@@ -187,6 +188,7 @@ function chado_worm_order_form_form($node, &$form_state) {
     $contact_name  = $worm_order_form->contact_name;
     $contact_email = $worm_order_form->contact_email;
     $comments = $worm_order_form->comments;
+    $customs_file_upload = $worm_order_form->customs_file_upload;
     $sstatus = $worm_order_form->sstatus;
     $date_shipped = $worm_order_form-> date_shipped;
     $airbill = $worm_order_form-> airbill;
@@ -215,6 +217,7 @@ function chado_worm_order_form_form($node, &$form_state) {
      $contact_name  = $form_state['values']['contact_name'];
      $contact_email  = $form_state['values']['contact_email'];
      $comments  = $form_state['values']['comments'];
+     $customs_file_upload  = $form_state['values']['customs_file_upload'];
      $sstatus  = $form_state['values']['sstatus'];
      $date_shipped  = $form_state['values']['date_shipped'];
      $airbill  = $form_state['values']['airbill'];
@@ -237,6 +240,7 @@ function chado_worm_order_form_form($node, &$form_state) {
      $contact_name  = $form_state['input']['contact_name'];
      $contact_email  = $form_state['input']['contact_email'];
      $comments  = $form_state['input']['comments'];
+     $customs_file_upload  = $form_state['input']['customs_file_upload'];
      $sstatus  = $form_state['input']['sstatus'];
      $date_shipped  = $form_state['input']['date_shipped'];
      $airbill  = $form_state['input']['airbill'];
@@ -346,6 +350,12 @@ $form['contact_lab_head'] = array(
   );
 
   
+  $form['customs_file_upload'] = array(
+    '#type' => 'file',
+    '#title' => t('Choose a file'),
+    '#default_value' => $customs_file_upload,
+    '#description' => t('REQUIRED if shipping Internationally.' ),
+  );
 
   $form['comments'] = array(
     '#type' => 'text_format',
@@ -575,6 +585,10 @@ function chado_worm_order_form_insert($node) {
      }elseif ($node->carrier == 2){
        $carrier_name = 'Other';
      }
+    $filepath = 'public://customs_file_upload'; 
+    file_prepare_directory($filepath, FILE_CREATE_DIRECTORY);
+    $file = file_save_upload('customs_file_upload',null, $filepath);
+    $file_url = file_create_url($file->uri);
 
     $values = array(
       'worm_quantity' => $node->worm_quantity,
@@ -591,6 +605,7 @@ function chado_worm_order_form_insert($node) {
       'contact_name' => $node->contact_name,
       'contact_email' => $node->contact_email,
       'comments' => $node->comments['value'],
+      'customs_file_upload' => $file_url,
       'sstatus' => $node->sstatus ? defined($node->sstatus) : 0,
       'date_shipped' => $node->comments['date_shipped'],
       'airbill' => $node->comments['airbill'],
@@ -659,6 +674,10 @@ function chado_worm_order_form_update($node) {
   $match = array(
     'worm_order_form_id' => $worm_order_form_id,
   );
+    $filepath = 'public://customs_file_upload';
+    file_prepare_directory($filepath, FILE_CREATE_DIRECTORY);
+    $file = file_save_upload('customs_file_upload',null, $filepath);
+    $file_url = file_create_url($file->uri);
   $values = array(
     'worm_quantity' => $node->worm_quantity,
     'worm_biotype' => $node->worm_biotype ,
@@ -677,6 +696,7 @@ function chado_worm_order_form_update($node) {
     'contact_name' => trim($node->contact_name),
     'contact_email' => trim($node->contact_email),
     'comments' => trim($node->comments['value']),
+    'customs_file_upload' => trim($file_url),
     'status_notes' => trim($node->status_notes['value']),
   );
   $options = array('return_record' => TRUE);
@@ -811,6 +831,7 @@ function chado_worm_order_form_load($nodes) {
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.contact_name');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.contact_email');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.comments');
+    $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.customs_file_upload');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.status_notes');
 
     // add the new worm_order_form object to this node.

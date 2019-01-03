@@ -174,6 +174,13 @@ $rows[] = array(
   ),
   $worm_order_form->airbill
 );
+$rows[] = array(
+  array(
+    'data' => 'Link to Customs File',
+    'header' => TRUE
+  ),
+  '<a href="' . $worm_order_form->customs_file_upload . '">link</a>' 
+);
 }
 // allow site admins to see the worm_order_form ID
 if (user_access('view ids')) {
