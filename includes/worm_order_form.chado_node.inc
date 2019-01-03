@@ -159,6 +159,7 @@ function chado_worm_order_form_form($node, &$form_state) {
   $delivery_address = '';
   $delivery_phone = '';
   $receiver_name = '';
+  $carrier = '';
   $fedex_account = '';
   $condition_acknowledgement = '';
   $comments = '';
@@ -180,6 +181,7 @@ function chado_worm_order_form_form($node, &$form_state) {
     $delivery_address  = $worm_order_form->delivery_address;
     $delivery_phone = $worm_order_form->delivery_phone;
     $fedex_account = $worm_order_form->fedex_account;
+    $carrier = $worm_order_form->carrier;
     $condition_acknowledgement = $worm_order_form->condition_acknowledgement;
     $receiver_name  = $worm_order_form->receiver_name;
     $contact_name  = $worm_order_form->contact_name;
@@ -207,6 +209,7 @@ function chado_worm_order_form_form($node, &$form_state) {
      $delivery_address  = $form_state['values']['delivery_address'];
      $delivery_phone = $form_state['values']['delivery_phone'];
      $fedex_account  = $form_state['values']['fedex_account'];
+     $carrier  = $form_state['values']['carrier'];
      $condition_acknowledgement  = $form_state['values']['condition_acknowledgement'];
      $receiver_name  = $form_state['values']['receiver_name'];
      $contact_name  = $form_state['values']['contact_name'];
@@ -228,6 +231,7 @@ function chado_worm_order_form_form($node, &$form_state) {
      $delivery_address  = $form_state['input']['delivery_address'];
      $delivery_phone = $form_state['input']['delivery_phone'];
      $fedex_account  = $form_state['input']['fedex_account'];
+     $carrier  = $form_state['input']['carrier'];
      $condition_acknowledgement  = $form_state['input']['condition_acknowledgement'];
      $receiver_name  = $form_state['input']['receiver_name'];
      $contact_name  = $form_state['input']['contact_name'];
@@ -322,9 +326,19 @@ $form['contact_lab_head'] = array(
     '#description' => t('REQUIRED. Needed for FedEx delivery.'), 
   );
 
+  $select_carrier = array(0 => t('FedEx'), 1 => t('UPS') , 2 => t('Other: Please specify in comments below'));
+  $form['carrier'] = array(
+    '#type' => 'select',
+    '#title' => t('Select Carrier'),
+    '#default_value' => $carrier,
+    '#options' => $select_carrier,
+    '#description' => t('REQUIRED. Please select a carrier. FedEx is our preferred carrier.'),
+    '#required' => TRUE
+  );
+
   $form['fedex_account'] = array(
     '#type' => 'textfield',
-    '#title' => t('FedEx/UPS Account Number'),
+    '#title' => t('Shipping Carrier Account Number'),
     '#default_value' => $fedex_account,
     '#description' => t('REQUIRED. Please prefix account number with FEDEX or UPS. Account number will be used to cover shipping costs'),
     '#required' => TRUE,
@@ -471,6 +485,11 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
     if(!is_numeric($node->worm_quantity)){
        form_set_error('worm_order_form_type', t("The provided worm quantity does not seem correct."));
     }
+    $account_ok = array();
+    preg_match("/^([ +\d\-\(\)]+)$/", $node->fedex_account, $account_ok);
+    if (empty($account_ok)){
+      form_set_error('worm_order_form_type', t("The carrier account number does not seem correct."));
+    }
     // make sure the worm_order_form type is an allowed term
     //$type_cv = tripal_get_default_cv('worm_order_form', 'type_id');
     //$type = tripal_get_cvterm(array(
@@ -494,6 +513,12 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
     if (empty($phone_ok)){
       form_set_error('worm_order_form_type', t("The contact phone number does not seem correct."));
     }
+    $account_ok = array();
+    preg_match("/^([ +\d\-\(\)]+)$/", $node->fedex_account, $account_ok);
+    if (empty($account_ok)){
+      form_set_error('worm_order_form_type', t("The carrier account number does not seem correct."));
+    }
+
     if(!is_numeric($node->worm_quantity)){
        form_set_error('worm_order_form_type', t("The provided worm quantity does not seem correct."));
     }
@@ -538,18 +563,29 @@ function chado_worm_order_form_insert($node) {
     //$node->description  = property_exists('description', $node) : trim($node->description['value']) ? '';
     // get the worm_order_form type record
     // perform the insert using the chado_insert_record function();
-        $biotype = 'Schmidtea mediterranea Asexuals';
-        if ($node->worm_biotype == 1){
-          $biotype = 'Schmidtea mediterranea Sexuals';
-        }
+     $biotype = 'Schmidtea mediterranea Asexuals';
+     if ($node->worm_biotype == 1){
+        $biotype = 'Schmidtea mediterranea Sexuals';
+     }
+
+     $node->carrier   = trim($node->carrier);
+     $carrier_name = 'FedEx';
+     if ($node->carrier == 1){
+       $carrier_name = 'UPS';
+     }elseif ($node->carrier == 2){
+       $carrier_name = 'Other';
+     }
+
     $values = array(
       'worm_quantity' => $node->worm_quantity,
       'worm_biotype' => $node->worm_biotype,
       'contact_lab_head' => $node->contact_lab_head,
       'contact_position' => $node->contact_position,
-    'delivery_address' => trim(preg_replace('/\s\s+/', ' ', $node->delivery_address['value'])),//  trim($node->delivery_address['value']),
+      'delivery_address' => trim(preg_replace('/\s\s+/', ' ', $node->delivery_address['value'])),//  trim($node->delivery_address['value']),
       'delivery_phone' => $node->delivery_phone,
       'fedex_account' => $node->fedex_account,
+      'carrier' => $node->carrier,
+      'carrier_name' => $carrier_name,
       'condition_acknowledgement' => $node-> condition_acknowledgement,
       'receiver_name' => $node->receiver_name,
       'contact_name' => $node->contact_name,
@@ -633,8 +669,9 @@ function chado_worm_order_form_update($node) {
     'contact_lab_head' => trim($node->contact_lab_head),
     'contact_position' => trim($node->contact_position),
     'delivery_address' => trim(preg_replace('/\s\s+/', ' ', $node->delivery_address['value'])),//  trim($node->delivery_address['value']),
-     'delivery_phone' => trim($node->delivery_phone),
+    'delivery_phone' => trim($node->delivery_phone),
     'fedex_account' => trim($node->fedex_account),
+    'carrier' => trim($node->carrier),
     'condition_acknowledgement' => $node->condition_acknowledgement,
     'receiver_name' => trim($node->receiver_name),
     'contact_name' => trim($node->contact_name),
@@ -769,6 +806,7 @@ function chado_worm_order_form_load($nodes) {
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.delivery_address');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.delivery_phone');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.fedex_account');
+    $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.carrier_name');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.receiver_name');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.contact_name');
     $worm_order_form = chado_expand_var($worm_order_form, 'field', 'worm_order_form.contact_email');
@@ -868,10 +906,17 @@ function worm_order_form_node_insert($node) {
       if ($node->worm_biotype == 1){
          $biotype = 'Schmidtea mediterranea Sexuals';
       }
+      $carrier_name = 'FedEx';
+      if ($node->carrier == 1){
+         $carrier_name = 'UPS';
+      }elseif($node->carrier == 2){
+         $carrier_name = 'Other';
+      }
       $values = array(
         'worm_order_form_id' => $worm_order_form_id,
         'request_date' => format_date($node->created, 'custom', "Y-m-d"),
         'biotype' => $biotype,
+        'carrier_name' => $carrier_name,
    
       );
       $worm_order_form = chado_generate_var('worm_order_form', $values);

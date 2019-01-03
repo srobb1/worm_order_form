@@ -78,10 +78,17 @@ $rows[] = array(
   ),
   $worm_order_form->delivery_phone
 );
+$rows[] = array(
+  array(
+    'data' => 'Carrier',
+    'header' => TRUE
+  ),
+  $worm_order_form->carrier_name
+);
 
 $rows[] = array(
   array(
-    'data' => 'FedEx Account',
+    'data' => 'Account Number',
     'header' => TRUE
   ),
   $worm_order_form->fedex_account
