@@ -354,7 +354,7 @@ $form['contact_lab_head'] = array(
     '#type' => 'file',
     '#title' => t('Choose a file'),
     '#default_value' => $customs_file_upload,
-    '#description' => t('REQUIRED if shipping Internationally.' ),
+    '#description' => t('REQUIRED if shipping Internationally. For international shipments, please contact your Customs agency to obtain the necessary permit, paperwork, or other import clearance documentation. If no permits are required please supply a letter or document from the customs agency indicating that no accompanying documentation is required.' ),
   );
 
   $form['comments'] = array(
