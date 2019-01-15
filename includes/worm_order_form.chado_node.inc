@@ -496,7 +496,7 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
        form_set_error('worm_order_form_type', t("The provided worm quantity does not seem correct."));
     }
     $account_ok = array();
-    preg_match("/^([ +\d\-\(\)]+)$/", $node->fedex_account, $account_ok);
+    preg_match("/^([ +\w\d\-\(\)]+)$/", $node->fedex_account, $account_ok);
     if (empty($account_ok)){
       form_set_error('worm_order_form_type', t("The carrier account number does not seem correct."));
     }
