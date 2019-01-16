@@ -557,9 +557,10 @@ function worm_order_form_update_7203() {
   db_change_field(
     'chado.worm_order_form',
     'comments',
+    'comments',
     array(
       'type' => 'varchar',
-      'length' => 2555,
+      'length' => '2555',
     )
   );
 
