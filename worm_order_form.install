@@ -369,7 +369,7 @@ function worm_order_form_add_worm_order_form_table() {
       ),
       'comments' => array(
         'type' => 'varchar',
-        'length' => '255',
+        'length' => '2555',
       ),
       'condition_acknowledgement' => array(
         'type' => 'int',
@@ -545,6 +545,32 @@ function worm_order_form_update_7202() {
   }
 
 }
+
+/**
+ * This is the required update for worm_order_form.
+ */
+function worm_order_form_update_7203() {
+
+  // it is good to wrap any database changes inside of a try catch block:
+  try {
+   // perform database changes
+  db_change_field(
+    'chado.worm_order_form',
+    'comments',
+    array(
+      'type' => 'varchar',
+      'length' => 2555,
+    )
+  );
+
+  }
+  catch (\PDOException $e) {
+    $error = $e->getMessage();
+    throw new DrupalUpdateException('Could not apply updates: '. $error);
+  }
+
+}
+
 
 
 
