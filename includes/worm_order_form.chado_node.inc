@@ -589,7 +589,7 @@ function chado_worm_order_form_insert($node) {
     file_prepare_directory($filepath, FILE_CREATE_DIRECTORY);
     $file = file_save_upload('customs_file_upload',null, $filepath);
     $file_url = file_create_url($file->uri);
-
+dpm($node,'node');
     $values = array(
       'worm_quantity' => $node->worm_quantity,
       'worm_biotype' => $node->worm_biotype,
@@ -607,9 +607,12 @@ function chado_worm_order_form_insert($node) {
       'comments' => $node->comments['value'],
       'customs_file_upload' => $file_url,
       'sstatus' => $node->sstatus ? defined($node->sstatus) : 0,
-      'date_shipped' => $node->comments['date_shipped'],
-      'airbill' => $node->comments['airbill'],
-      'shipper_name' => $node->comments['shipper_name'],
+      'date_shipped' => $node->date_shipped,
+      'airbill' => $node->airbill,
+      'shipper_name' => $node->shipper_name,
+      //'date_shipped' => $node->comments['date_shipped'],
+      //'airbill' => $node->comments['airbill'],
+      //'shipper_name' => $node->comments['shipper_name'],
       'status_notes' => $node->status_notes['value'],
       'request_date' => format_date($node->created, 'custom', "Y-m-d"), 
       'biotype' => $biotype,
