@@ -492,9 +492,13 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
     if (empty($phone_ok)){
       form_set_error('worm_order_form_type', t("The contact phone number does not seem correct."));
     }
+
+    $node->worm_quantity = str_replace(',', '', $node->worm_quantity);
     if(!is_numeric($node->worm_quantity)){
        form_set_error('worm_order_form_type', t("The provided worm quantity does not seem correct."));
     }
+
+
     $account_ok = array();
     preg_match("/^([ +\w\d\-\(\)]+)$/", $node->fedex_account, $account_ok);
     if (empty($account_ok)){
@@ -529,6 +533,7 @@ function chado_worm_order_form_validate($node, $form, &$form_state) {
       form_set_error('worm_order_form_type', t("The carrier account number does not seem correct."));
     }
 
+    $node->worm_quantity = str_replace(',', '', $node->worm_quantity);
     if(!is_numeric($node->worm_quantity)){
        form_set_error('worm_order_form_type', t("The provided worm quantity does not seem correct."));
     }
@@ -569,6 +574,7 @@ function chado_worm_order_form_insert($node) {
   if (!property_exists($node, 'worm_order_form_id')) {
 
     // be sure to always trim text fields
+    $node->worm_quantity = str_replace(',', '', $node->worm_quantity);
     $node->worm_quantity   = trim($node->worm_quantity);
     //$node->description  = property_exists('description', $node) : trim($node->description['value']) ? '';
     // get the worm_order_form type record
@@ -587,7 +593,9 @@ function chado_worm_order_form_insert($node) {
      }
     $filepath = 'public://customs_file_upload'; 
     file_prepare_directory($filepath, FILE_CREATE_DIRECTORY);
-    $file = file_save_upload('customs_file_upload',null, $filepath);
+    $safe_files = array('file_validate_extensions' => array('jpg jpeg gif png txt doc docx xls xlsx pdf ppt pps odt ods odp'));
+    //$file = file_save_upload('customs_file_upload',null, $filepath);
+    $file = file_save_upload('customs_file_upload',$safe_files, $filepath);
     $file_url = file_create_url($file->uri);
     $values = array(
       'worm_quantity' => $node->worm_quantity,
@@ -678,7 +686,9 @@ function chado_worm_order_form_update($node) {
   );
     $filepath = 'public://customs_file_upload';
     file_prepare_directory($filepath, FILE_CREATE_DIRECTORY);
-    $file = file_save_upload('customs_file_upload',null, $filepath);
+    $safe_files = array('file_validate_extensions' => array('jpg jpeg gif png txt doc docx xls xlsx pdf ppt pps odt ods odp'));
+    //$file = file_save_upload('customs_file_upload',null, $filepath);
+    $file = file_save_upload('customs_file_upload',$safe_files, $filepath);
     $file_url = file_create_url($file->uri);
   $values = array(
     'worm_quantity' => $node->worm_quantity,
