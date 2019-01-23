@@ -174,12 +174,21 @@ $rows[] = array(
   ),
   $worm_order_form->airbill
 );
+$link = NULL;
+global $base_url;
+$site_url = $base_url . '/';
+
+if ($site_url != $worm_order_form->customs_file_upload){
+  $link = '<a href="' . $worm_order_form->customs_file_upload . '">link</a>';
+}else{
+  $link = 'No File';
+}
 $rows[] = array(
   array(
     'data' => 'Link to Customs File',
     'header' => TRUE
   ),
-  '<a href="' . $worm_order_form->customs_file_upload . '">link</a>' 
+  $link
 );
 }
 // allow site admins to see the worm_order_form ID
