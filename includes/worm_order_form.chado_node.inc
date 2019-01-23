@@ -589,7 +589,6 @@ function chado_worm_order_form_insert($node) {
     file_prepare_directory($filepath, FILE_CREATE_DIRECTORY);
     $file = file_save_upload('customs_file_upload',null, $filepath);
     $file_url = file_create_url($file->uri);
-dpm($node,'node');
     $values = array(
       'worm_quantity' => $node->worm_quantity,
       'worm_biotype' => $node->worm_biotype,
