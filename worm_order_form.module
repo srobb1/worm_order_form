@@ -390,3 +390,43 @@ $form['sync']['type_ids']=array();
 $form['sync']['organism_id']=array();
 return $form;
   }
+
+
+/*
+ * Implements hook_tokens().
+ * Not sure why
+ */
+function worm_order_form_tokens($type, $tokens, array $data = array(), array $options = array()) {
+    $values = array ();
+    foreach ($tokens as $token => $full_token) {
+        switch ($token) {
+        case 'worm-order-form.contact-lab-head':
+          $values[$full_token] = $data[node]->worm_order_form->contact_lab_head;
+          break;
+        case 'worm-order-form.delivery-address':
+          $values[$full_token] = $data[node]->worm_order_form->delivery_address;
+          break;
+        case 'worm-order-form.worm-quantity':
+          $values[$full_token] = $data[node]->worm_order_form->worm_quantity;
+          break;
+        case 'worm-order-form.contact-email':
+          $values[$full_token] = $data[node]->worm_order_form->contact_email;
+          break;
+        case 'worm-order-form.comments':
+          $values[$full_token] = $data[node]->worm_order_form->comments;
+          break;
+        case 'worm-order-form.worm-order-form-id':
+          $values[$full_token] = $data[node]->worm_order_form->worm_order_form_id;
+          break;
+        case 'worm-order-form.customs-file-upload':
+          $values[$full_token] = $data[node]->worm_order_form->customs_file_upload;
+          break;
+        case 'worm-order-form.fedex-account':
+          $values[$full_token] = $data[node]->worm_order_form->fedex_account;
+          break;
+      }
+          
+    }
+    return $values;
+//  }
+}
