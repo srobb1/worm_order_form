@@ -403,7 +403,7 @@ if (isset($user->roles[$admin_rid]) or isset($user->roles[$worm_order_form_admin
     '#title' => t('Agree to Terms and Conditions'),
     '#required' => TRUE,
     '#default_value' => $condition_acknowledgement,
-    '#description' => t('REQUIRED. For your request to be submittted you must agree to the terms and conditions. <a target="_blank"  href="/worm_request"><strong>Review Terms and Conditions</strong></a>'),
+    '#description' => t('REQUIRED. For your request to be submittted you must agree to the terms and conditions. <a target="_blank"  href="/worm_request"><strong>Review Terms and Conditions</strong></a><br><br><h3>Only Click Save One Time When Form is Complete.</h3>'),
   );
 
   // PROPERTIES FORM
@@ -594,8 +594,16 @@ function chado_worm_order_form_insert($node) {
     $filepath = 'public://customs_file_upload'; 
     file_prepare_directory($filepath, FILE_CREATE_DIRECTORY);
     $safe_files = array('file_validate_extensions' => array('jpg jpeg gif png txt doc docx xls xlsx pdf ppt pps odt ods odp'));
-    //$file = file_save_upload('customs_file_upload',null, $filepath);
     $file = file_save_upload('customs_file_upload',$safe_files, $filepath);
+
+//file upload test
+if ($file){
+    $file->status = FILE_STATUS_PERMANENT;
+    file_save($file);
+}
+// end test
+
+
     $file_url = file_create_url($file->uri);
     $values = array(
       'worm_quantity' => $node->worm_quantity,
