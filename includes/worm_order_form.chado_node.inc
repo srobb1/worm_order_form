@@ -256,7 +256,7 @@ function chado_worm_order_form_form($node, &$form_state) {
     '#title' => t('Worm Quantity'),
     '#required' => TRUE,
     '#default_value' => $worm_quantity,
-    '#description' => t('REQUIRED. Enter a the number of worms that you would like to have shipped. Example values are: 500, 1000, 10000'), 
+    '#description' => t('REQUIRED. Enter a the number of worms that you would like to have shipped. Example values are: 500, 1000, 2000'), 
     '#maxlength' => 255
   );
   $form['worm_biotype'] = array(
